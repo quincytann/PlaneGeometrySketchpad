@@ -64,21 +64,23 @@ class FullscreenActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_fullscreen)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setContentView(R.layout.draw_layout)
 
-        isFullscreen = true
-
-        // Set up the user interaction to manually show or hide the system UI.
-        fullscreenContent = findViewById(R.id.fullscreen_content)
-        fullscreenContent.setOnClickListener { toggle() }
-
-        fullscreenContentControls = findViewById(R.id.fullscreen_content_controls)
-
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-        findViewById<Button>(R.id.dummy_button).setOnTouchListener(delayHideTouchListener)
+//        setContentView(R.layout.activity_fullscreen)
+//        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+//
+//        isFullscreen = true
+//
+//        // Set up the user interaction to manually show or hide the system UI.
+//        fullscreenContent = findViewById(R.id.fullscreen_content)
+//        fullscreenContent.setOnClickListener { toggle() }
+//
+//        fullscreenContentControls = findViewById(R.id.fullscreen_content_controls)
+//
+//        // Upon interacting with UI controls, delay any scheduled hide()
+//        // operations to prevent the jarring behavior of controls going away
+//        // while interacting with the UI.
+//        findViewById<Button>(R.id.dummy_button).setOnTouchListener(delayHideTouchListener)
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -87,7 +89,7 @@ class FullscreenActivity : AppCompatActivity() {
         // Trigger the initial hide() shortly after the activity has been
         // created, to briefly hint to the user that UI controls
         // are available.
-        delayedHide(100)
+        //delayedHide(100)
     }
 
     private fun toggle() {

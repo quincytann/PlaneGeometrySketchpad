@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PlaneGeometry</string>
+    <string name="app_name">PlaneGeometrySketchpad</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>
