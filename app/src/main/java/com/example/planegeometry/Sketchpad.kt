@@ -45,11 +45,6 @@ class Sketchpad(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
         bufferCanvas = Canvas(bufferBitmap!!)
     }
 
-    fun setCurrencenter(currencenter: Float) {
-        this.currencenter = currencenter
-        drawSth()
-    }
-
     private fun drawSth() {
         if (bufferBitmap == null) return
         bufferCanvas!!.drawColor(Color.WHITE)

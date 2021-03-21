@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 
+// wip简约画板，缺少具体形状
 
 class BoardView : View {
     //路径
