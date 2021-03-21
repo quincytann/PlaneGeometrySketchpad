@@ -13,9 +13,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.draw_layout)
         setSupportActionBar(toolbar)
 
+        initView()
         initAction()
     }
 
+    private fun initView() {
+
+    }
 
     private fun initAction() {
         // todo 点击事件增加防抖机制
