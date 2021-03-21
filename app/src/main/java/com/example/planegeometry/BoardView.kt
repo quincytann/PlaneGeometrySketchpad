@@ -1,14 +1,13 @@
 package com.example.planegeometry
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 
-// wip简约画板，缺少具体形状
-
-class BoardView : View {
+class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
     //路径
     private var path: Path? = null
 
@@ -21,19 +20,24 @@ class BoardView : View {
     var bitmap: Bitmap? = null
     var canvas: Canvas? = null
 
-    constructor(context: Context?) : super(context) {}
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
-        bitmap = Bitmap.createBitmap(VIEW_WIDTH, VIEW_HEIGHT,
-                Bitmap.Config.ARGB_8888)
+    init {
         canvas = Canvas()
         path = Path()
-        canvas!!.setBitmap(bitmap)
         paint = Paint(Paint.DITHER_FLAG)
         paint!!.color = Color.RED
         paint!!.style = Paint.Style.STROKE
         paint!!.strokeWidth = 10f
         paint!!.isAntiAlias = true
         paint!!.isDither = true
+    }
+
+
+    @SuppressLint("DrawAllocation")
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        bitmap = Bitmap.createBitmap(right, bottom, Bitmap.Config.ARGB_8888)
+        canvas!!.setBitmap(bitmap)
+
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -63,8 +67,8 @@ class BoardView : View {
     }
 
     companion object {
-        //默认画布大小
-        var VIEW_WIDTH = 500
-        var VIEW_HEIGHT = 600
+//        //默认画布大小
+//        var VIEW_WIDTH = 500
+//        var VIEW_HEIGHT = 600
     }
 }
