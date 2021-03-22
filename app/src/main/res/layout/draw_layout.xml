@@ -34,7 +34,7 @@
             android:src="@drawable/ic_menu"
             />
 
-        <com.example.planegeometry.BoardView
+        <com.example.planegeometry.views.BoardView
             android:id="@+id/board_view"
             app:layout_constraintTop_toBottomOf="@id/toolbar"
             android:layout_width="match_parent"
@@ -42,7 +42,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-    <LinearLayout
+    <com.example.planegeometry.views.MenuView
         android:id="@+id/menu_page"
         android:layout_gravity="end"
         android:layout_width="120dp"
@@ -50,23 +50,6 @@
         android:layout_marginTop="?attr/actionBarSize"
         android:orientation="vertical"
         android:background="@color/light_gray">
-
-        <TextView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:text="123"
-            />
-
-        <TextView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:text="456"
-            />
-        <TextView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:text="789"
-            />
-    </LinearLayout>
+    </com.example.planegeometry.views.MenuView>
 
 </androidx.drawerlayout.widget.DrawerLayout>

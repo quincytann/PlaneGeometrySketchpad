@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:text="123"
+        />
+
+    <TextView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:text="456"
+        />
+    <TextView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:text="789"
+        />
+</merge>

@@ -1,4 +1,4 @@
-package com.example.planegeometry
+package com.example.planegeometry.views
 
 import android.annotation.SuppressLint
 import android.content.Context

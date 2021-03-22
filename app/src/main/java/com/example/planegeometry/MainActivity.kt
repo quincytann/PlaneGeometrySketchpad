@@ -50,5 +50,6 @@ class MainActivity : AppCompatActivity() {
         menu.setOnClickListener(ProxyClickListener {
             drawer_layout.openDrawer(GravityCompat.END)
         })
+
     }
 }

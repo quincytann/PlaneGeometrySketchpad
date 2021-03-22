@@ -1,4 +1,4 @@
-package com.example.planegeometry
+package com.example.planegeometry.views
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -6,6 +6,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import com.example.planegeometry.utils.CLog
 
 class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
     //路径
@@ -21,19 +22,24 @@ class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
     var canvas: Canvas? = null
 
     init {
+        CLog.d(TAG, "init")
         canvas = Canvas()
         path = Path()
         paint = Paint(Paint.DITHER_FLAG)
-        paint!!.color = Color.RED
-        paint!!.style = Paint.Style.STROKE
-        paint!!.strokeWidth = 10f
-        paint!!.isAntiAlias = true
-        paint!!.isDither = true
+        // 初始化画笔
+        paint!!.apply {
+            color = Color.RED
+            style = Paint.Style.STROKE
+            strokeWidth = 5f
+            isAntiAlias = true //开启抗锯齿
+            isDither = true //开启防抖
+        }
     }
 
 
     @SuppressLint("DrawAllocation")
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        CLog.d(TAG, "onLayout")
         super.onLayout(changed, left, top, right, bottom)
         bitmap = Bitmap.createBitmap(right, bottom, Bitmap.Config.ARGB_8888)
         canvas!!.setBitmap(bitmap)
@@ -60,6 +66,7 @@ class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
     }
 
     override fun onDraw(canvas: Canvas) {
+        CLog.d(TAG, "onDraw")
         super.onDraw(canvas)
         val bmpPaint = Paint()
         canvas.drawBitmap(bitmap!!, 0f, 0f, bmpPaint)
@@ -67,6 +74,7 @@ class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
     }
 
     companion object {
+        const val TAG = "BoardView"
 //        //默认画布大小
 //        var VIEW_WIDTH = 500
 //        var VIEW_HEIGHT = 600
