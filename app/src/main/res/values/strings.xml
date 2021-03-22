@@ -2,4 +2,12 @@
     <string name="app_name">平面几何画板</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string name="menu_items_pen">笔</string>
+    <string name="menu_items_clear">清屏</string>
+    <string name="menu_items_eraser">删除</string>
+    <string name="menu_items_segment">线段</string>
+    <string name="menu_items_triangle">三角形</string>
+    <string name="menu_items_rectangular">矩形</string>
+
 </resources>
