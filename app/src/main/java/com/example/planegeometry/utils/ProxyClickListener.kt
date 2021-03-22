@@ -6,7 +6,7 @@ import android.view.View
  * 防抖动监听事件
  */
 
-class ProxyClickListener(val action: (() -> Unit)?) : View.OnClickListener {
+class ProxyClickListener(private val action: (() -> Unit)?) : View.OnClickListener {
 
     private var lastClickTime: Long = 0
     private var intervalsTime: Long = 500
