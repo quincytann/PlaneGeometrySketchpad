@@ -6,6 +6,11 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import com.example.planegeometry.utils.ProxyClickListener
+import com.example.planegeometry.views.MenuView.Companion.CLEAR
+import com.example.planegeometry.views.MenuView.Companion.PEN
+import com.example.planegeometry.views.MenuView.Companion.RECTANGULAR
+import com.example.planegeometry.views.MenuView.Companion.SEGMENT
+import com.example.planegeometry.views.MenuView.Companion.TRIANGLE
 import kotlinx.android.synthetic.main.draw_layout.*
 
 
@@ -51,5 +56,27 @@ class MainActivity : AppCompatActivity() {
             drawer_layout.openDrawer(GravityCompat.END)
         })
 
+        // 添加侧边点击选项后的回调
+        val clickListener = mutableListOf<() -> Unit>().apply {
+            add {
+                board_view.setPaintMode(PEN)
+            }
+            add {
+                board_view.apply {
+                    setPaintMode(CLEAR)
+                    clearDraw()
+                }
+            }
+            add {
+                board_view.setPaintMode(SEGMENT)
+            }
+            add {
+                board_view.setPaintMode(TRIANGLE)
+            }
+            add {
+                board_view.setPaintMode(RECTANGULAR)
+            }
+        }
+        menu_page.setClickItemCallBack(clickListener)
     }
 }

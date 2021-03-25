@@ -14,6 +14,7 @@ class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
 
     //画笔
     var paint: Paint? = null
+    private var paintMode: Int = 0
 
     //之前的坐标
     private var preX = 0f
@@ -68,15 +69,22 @@ class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
     override fun onDraw(canvas: Canvas) {
         CLog.d(TAG, "onDraw")
         super.onDraw(canvas)
-        val bmpPaint = Paint()
-        canvas.drawBitmap(bitmap!!, 0f, 0f, bmpPaint)
+        //val bmpPaint = Paint()
+        //canvas.drawBitmap(bitmap!!, 0f, 0f, bmpPaint)
         canvas.drawPath(path!!, paint!!)
+    }
+
+    fun setPaintMode(mode: Int) {
+        paintMode = mode
+    }
+
+    fun clearDraw() {
+        path!!.reset()
+        //canvas!!.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+        invalidate()
     }
 
     companion object {
         const val TAG = "BoardView"
-//        //默认画布大小
-//        var VIEW_WIDTH = 500
-//        var VIEW_HEIGHT = 600
     }
 }

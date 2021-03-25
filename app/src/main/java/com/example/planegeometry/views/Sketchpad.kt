@@ -45,25 +45,8 @@ class Sketchpad(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
         bufferCanvas = Canvas(bufferBitmap!!)
     }
 
-    private fun drawSth() {
-        if (bufferBitmap == null) return
-        bufferCanvas!!.drawColor(Color.WHITE)
-        bufferCanvas!!.drawCircle(currencenter, currencenter, 200f, paint)
-        when (paintMode) {
-            PEN -> bufferCanvas!!.drawPath(path, paint)
-            RECT -> bufferCanvas!!.drawRect(rectLeftTop.x.toFloat(), rectLeftTop.y.toFloat(), rectRightBottom.x.toFloat(), rectRightBottom.y.toFloat(), paint)
-            CIRCLE -> bufferCanvas!!.drawCircle(circleCenter.x.toFloat(), circleCenter.y.toFloat(), radius, paint)
-            ERASER -> bufferCanvas!!.drawPath(path, paint)
-        }
-    }
-
     override fun onDraw(canvas: Canvas) {
         canvas.drawBitmap(bufferBitmap!!, 0f, 0f, null)
-    }
-
-    fun setPaintMode(paintMode: Int) {
-        this.paintMode = paintMode
-        drawSth()
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
