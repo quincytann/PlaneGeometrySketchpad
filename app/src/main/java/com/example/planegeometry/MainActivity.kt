@@ -63,7 +63,6 @@ class MainActivity : AppCompatActivity() {
             }
             add {
                 board_view.apply {
-                    setPaintMode(CLEAR)
                     clearDraw()
                 }
             }

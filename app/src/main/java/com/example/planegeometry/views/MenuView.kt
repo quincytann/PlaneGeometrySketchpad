@@ -47,6 +47,7 @@ class MenuView @JvmOverloads constructor(
     }
 
     private fun updateSelectedStatus(selectedId: Int) {
+        if (selectedId == CLEAR) return
         for (id in 0 until mItemsView.size) {
             if (id == selectedId) {
                 mItemsView[id].setBackgroundResource(R.drawable.menu_items_selected_bg)
