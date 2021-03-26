@@ -23,6 +23,7 @@ class MenuView @JvmOverloads constructor(
         mItemsView.apply {
             add(view.findViewById(R.id.item_pen))
             add(view.findViewById(R.id.item_clear))
+            add(view.findViewById(R.id.item_eraser))
             add(view.findViewById(R.id.item_segment))
             add(view.findViewById(R.id.item_triangle))
             add(view.findViewById(R.id.item_rectangular))
@@ -60,9 +61,10 @@ class MenuView @JvmOverloads constructor(
     companion object {
         const val PEN = 0
         const val CLEAR = 1
-        const val SEGMENT = 2
-        const val TRIANGLE = 3
-        const val RECTANGULAR = 4
+        const val ERASER = 2
+        const val SEGMENT = 3
+        const val TRIANGLE = 4
+        const val RECTANGULAR = 5
     }
 
 }

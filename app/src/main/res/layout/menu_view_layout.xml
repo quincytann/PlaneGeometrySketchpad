@@ -49,9 +49,30 @@
                 android:textSize="12sp"/>
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/item_eraser"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/item_pen"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/eraser"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/black"
+                android:text="@string/menu_items_eraser"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
         <View
             android:id="@+id/line1"
-            app:layout_constraintTop_toBottomOf="@id/item_pen"
+            app:layout_constraintTop_toBottomOf="@id/item_eraser"
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
             android:layout_marginTop="0.5dp"

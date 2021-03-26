@@ -7,7 +7,9 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import com.example.planegeometry.utils.CLog
+import com.example.planegeometry.utils.DimenUtils
 import com.example.planegeometry.views.MenuView.Companion.CLEAR
+import com.example.planegeometry.views.MenuView.Companion.ERASER
 import com.example.planegeometry.views.MenuView.Companion.PEN
 import com.example.planegeometry.views.MenuView.Companion.RECTANGULAR
 import com.example.planegeometry.views.MenuView.Companion.SEGMENT
@@ -35,12 +37,13 @@ class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
         CLog.d(TAG, "init")
         canvas = Canvas()
         path = Path()
-        paint = Paint(Paint.DITHER_FLAG)
+        paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG)
         // 初始化画笔
         paint.apply {
             color = Color.BLACK
             style = Paint.Style.STROKE
-            strokeWidth = 5f
+            strokeCap = Paint.Cap.ROUND
+            strokeWidth = DimenUtils.dp2px(2f)
             isAntiAlias = true //开启抗锯齿
             isDither = true //开启防抖
         }
@@ -48,8 +51,7 @@ class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
         textPaint.apply {
             color = Color.BLUE
             style = Paint.Style.FILL
-            strokeWidth = 1f
-            textSize = 30f
+            textSize = DimenUtils.sp2px(15f)
         }
     }
 
@@ -69,7 +71,7 @@ class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
         val y = event.y
         CLog.d(TAG, "onTouchEvent")
         when(paintMode) {
-            PEN -> {
+            PEN, ERASER -> {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
                         path.moveTo(x, y)
@@ -80,10 +82,10 @@ class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
                         path.quadTo(preX, preY, x, y)
                         preX = x
                         preY = y
+                        canvas.drawPath(path, paint)
                         invalidate()
                     }
                 }
-                canvas.drawPath(path, paint)
             }
             CLEAR -> {
 
@@ -101,6 +103,9 @@ class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
                         } else {
                             path.moveTo(x, y)
                         }
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+
                     }
                 }
                 canvas.apply {
@@ -128,6 +133,14 @@ class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
 
     fun setPaintMode(mode: Int) {
         paintMode = mode
+        if (mode == ERASER) {
+            paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+            paint.strokeWidth = DimenUtils.dp2px(8f)
+        } else {
+            paint.xfermode = null
+            paint.strokeWidth = DimenUtils.dp2px(2f)
+        }
+        path.reset()
         clickTimes = 0
     }
 

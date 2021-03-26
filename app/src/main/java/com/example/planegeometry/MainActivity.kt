@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import com.example.planegeometry.utils.ProxyClickListener
 import com.example.planegeometry.views.MenuView.Companion.CLEAR
+import com.example.planegeometry.views.MenuView.Companion.ERASER
 import com.example.planegeometry.views.MenuView.Companion.PEN
 import com.example.planegeometry.views.MenuView.Companion.RECTANGULAR
 import com.example.planegeometry.views.MenuView.Companion.SEGMENT
@@ -65,6 +66,9 @@ class MainActivity : AppCompatActivity() {
                 board_view.apply {
                     clearDraw()
                 }
+            }
+            add {
+                board_view.setPaintMode(ERASER)
             }
             add {
                 board_view.setPaintMode(SEGMENT)
