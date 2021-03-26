@@ -15,30 +15,28 @@ import com.example.planegeometry.views.MenuView.Companion.RECTANGULAR
 import com.example.planegeometry.views.MenuView.Companion.SEGMENT
 import com.example.planegeometry.views.MenuView.Companion.TRIANGLE
 
-class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
-    //路径
-    private var path: Path
+class BoardView @JvmOverloads constructor(
+        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : View(context, attrs, defStyleAttr) {
 
-    //画笔
-    private var paint: Paint
+    private var path: Path = Path()
+    private var paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG)
     private var textPaint: Paint
-    private var paintMode: Int = 0
+    private var paintMode: Int = PEN
+    private lateinit var canvas: Canvas
+    private lateinit var bitmap: Bitmap
+    private lateinit var holdCanvas: Canvas
+    private lateinit var holdBitmap: Bitmap
 
-    //之前的坐标
     private var preX = 0f
     private var preY = 0f
-    private lateinit var bitmap: Bitmap
-    private var canvas: Canvas
-
     private var clickTimes: Int = 0
     private var pointCount: Int = 0
 
+    private var mPaintedList: MutableList<PaintData> = ArrayList()
+    private var mRevokedList: MutableList<PaintData> = ArrayList()
+
     init {
-        CLog.d(TAG, "init")
-        canvas = Canvas()
-        path = Path()
-        paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG)
-        // 初始化画笔
         paint.apply {
             color = Color.BLACK
             style = Paint.Style.STROKE
@@ -55,16 +53,51 @@ class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
         }
     }
 
+    fun setPaintMode(mode: Int) {
+        paintMode = mode
+        if (mode == ERASER) {
+            paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+            paint.strokeWidth = DimenUtils.dp2px(8f)
+        } else {
+            paint.xfermode = null
+            paint.strokeWidth = DimenUtils.dp2px(2f)
+        }
+        path.reset()
+        clickTimes = 0
+    }
 
-    @SuppressLint("DrawAllocation")
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        CLog.d(TAG, "onLayout")
-        super.onLayout(changed, left, top, right, bottom)
+    fun clearDraw() {
+        path.reset()
+        mPaintedList.clear()
+        mRevokedList.clear()
+        holdCanvas.drawColor(0, PorterDuff.Mode.CLEAR)
+        canvas.drawColor(0, PorterDuff.Mode.CLEAR)
+        clickTimes = 0
+        pointCount = 0
+        invalidate()
+    }
+
+    fun revoked() {
+        reDraw(mPaintedList)
+    }
+
+    fun unRevoked() {
+        reDraw(mRevokedList)
+    }
+
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         if (!this::bitmap.isInitialized) {
-            bitmap = Bitmap.createBitmap(right, bottom, Bitmap.Config.ARGB_8888)
-            canvas.setBitmap(bitmap)
+            bitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.ARGB_8888)
+            canvas = Canvas(bitmap)
+        }
+        if (!this::holdBitmap.isInitialized) {
+            holdBitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.ARGB_8888)
+            holdCanvas = Canvas(holdBitmap)
         }
     }
+
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val x = event.x
@@ -83,7 +116,10 @@ class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
                         preX = x
                         preY = y
                         canvas.drawPath(path, paint)
-                        invalidate()
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        mPaintedList.add(PaintData(Paint(paint), Path(path)))    // 记录每一笔
+                        path.reset()
                     }
                 }
             }
@@ -104,16 +140,12 @@ class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
                             path.moveTo(x, y)
                         }
                     }
-                    MotionEvent.ACTION_MOVE -> {
-
-                    }
                 }
                 canvas.apply {
                     drawPoint(x, y, paint)
                     drawText("P${pointCount}", preX, preY, textPaint)
                     drawPath(path, paint)
                 }
-                invalidate()
             }
             TRIANGLE -> {
 
@@ -128,31 +160,46 @@ class BoardView(context: Context?, attrs: AttributeSet?) : View(context, attrs) 
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+
+        // 大于最大可缓存的笔画固化下来
+        while (mPaintedList.size > MAX_PAINT_RECORD) {
+            val paintData = mPaintedList.removeFirst()
+            paintData.draw(holdCanvas)
+        }
+        canvas.drawBitmap(holdBitmap, 0f, 0f, null)
+        for (paint in mPaintedList) {
+            paint.draw(canvas)
+        }
+
         canvas.drawBitmap(bitmap, 0f, 0f, null)
     }
 
-    fun setPaintMode(mode: Int) {
-        paintMode = mode
-        if (mode == ERASER) {
-            paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
-            paint.strokeWidth = DimenUtils.dp2px(8f)
-        } else {
-            paint.xfermode = null
-            paint.strokeWidth = DimenUtils.dp2px(2f)
+
+    private fun reDraw(paintList: MutableList<PaintData>) {
+        if (paintList.size > 0) {
+            val paint = paintList.removeLast()
+            if (paintList === mPaintedList) {
+                mRevokedList.add(paint)
+            } else {
+                mPaintedList.add(paint)
+            }
+            canvas.drawColor(0, PorterDuff.Mode.CLEAR)
+            invalidate()
         }
-        path.reset()
-        clickTimes = 0
     }
 
-    fun clearDraw() {
-        path.reset()
-        canvas.drawColor(0, PorterDuff.Mode.CLEAR)
-        clickTimes = 0
-        pointCount = 0
-        invalidate()
-    }
 
     companion object {
         const val TAG = "BoardView"
+        const val MAX_PAINT_RECORD = 20
+    }
+}
+
+
+
+data class PaintData(var mPaint: Paint, var mPath: Path) {
+
+    fun draw(canvas: Canvas) {
+        canvas.drawPath(mPath, mPaint)
     }
 }

@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.example.planegeometry.R
+import com.example.planegeometry.utils.CLog
 import com.example.planegeometry.utils.MyApplication
 import com.example.planegeometry.utils.ProxyClickListener
 import kotlinx.android.synthetic.main.menu_view_layout.view.*
@@ -24,6 +25,8 @@ class MenuView @JvmOverloads constructor(
             add(view.findViewById(R.id.item_pen))
             add(view.findViewById(R.id.item_clear))
             add(view.findViewById(R.id.item_eraser))
+            add(view.findViewById(R.id.item_revoke))
+            add(view.findViewById(R.id.item_undo))
             add(view.findViewById(R.id.item_segment))
             add(view.findViewById(R.id.item_triangle))
             add(view.findViewById(R.id.item_rectangular))
@@ -38,7 +41,7 @@ class MenuView @JvmOverloads constructor(
         for (id in 0 until mItemsView.size) {
             clickListeners.getOrNull(id)?.let { callback ->
                 mItemsView.getOrNull(id)?.let {
-                    it.setOnClickListener(ProxyClickListener{
+                    it.setOnClickListener(ProxyClickListener {
                         callback.invoke()
                         updateSelectedStatus(id)
                     })
@@ -48,23 +51,37 @@ class MenuView @JvmOverloads constructor(
     }
 
     private fun updateSelectedStatus(selectedId: Int) {
-        if (selectedId == CLEAR) return
+        if (useIndependentBackground(selectedId)) {
+            return
+        }
         for (id in 0 until mItemsView.size) {
-            if (id == selectedId) {
-                mItemsView[id].setBackgroundResource(R.drawable.menu_items_selected_bg)
+            if (useIndependentBackground(id)) {
+                continue
             } else {
-                mItemsView[id].setBackgroundResource(0)
+                if (selectedId == id) {
+                    mItemsView[id].setBackgroundResource(R.drawable.menu_items_selected_bg)
+                } else {
+                    mItemsView[id].setBackgroundResource(0)
+                }
             }
         }
     }
 
+    private fun useIndependentBackground(id: Int): Boolean {
+        return id == CLEAR || id == REVOKE || id == UNDO
+    }
+
     companion object {
+        const val TAG = "MenuView"
+
         const val PEN = 0
         const val CLEAR = 1
         const val ERASER = 2
-        const val SEGMENT = 3
-        const val TRIANGLE = 4
-        const val RECTANGULAR = 5
+        const val REVOKE = 3
+        const val UNDO = 4
+        const val SEGMENT = 5
+        const val TRIANGLE = 6
+        const val RECTANGULAR = 7
     }
 
 }

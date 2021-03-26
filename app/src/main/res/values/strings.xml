@@ -9,5 +9,8 @@
     <string name="menu_items_segment">线段</string>
     <string name="menu_items_triangle">三角形</string>
     <string name="menu_items_rectangular">矩形</string>
+    <string name="menu_items_revoke">撤销</string>
+    <string name="menu_items_undo">反撤销</string>
+
 
 </resources>

@@ -71,6 +71,12 @@ class MainActivity : AppCompatActivity() {
                 board_view.setPaintMode(ERASER)
             }
             add {
+                board_view.revoked()
+            }
+            add {
+                board_view.unRevoked()
+            }
+            add {
                 board_view.setPaintMode(SEGMENT)
             }
             add {

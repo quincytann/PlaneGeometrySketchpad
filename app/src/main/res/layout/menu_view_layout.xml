@@ -32,8 +32,9 @@
             android:id="@+id/item_clear"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            app:layout_constraintLeft_toRightOf="@id/item_pen"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/item_pen"
+            android:background="@drawable/menu_items_temp_selected_bg"
             android:orientation="vertical"
             android:gravity="center">
             <ImageView
@@ -53,8 +54,8 @@
             android:id="@+id/item_eraser"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/item_pen"
+            app:layout_constraintTop_toBottomOf="@id/item_pen"
+            app:layout_constraintLeft_toRightOf="@id/item_clear"
             android:orientation="vertical"
             android:gravity="center">
             <ImageView
@@ -70,9 +71,53 @@
                 android:textSize="12sp"/>
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/item_revoke"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            app:layout_constraintTop_toBottomOf="@id/item_clear"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:background="@drawable/menu_items_temp_selected_bg"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/revoke"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/black"
+                android:text="@string/menu_items_revoke"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/item_undo"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            app:layout_constraintLeft_toRightOf="@id/item_revoke"
+            app:layout_constraintTop_toTopOf="@id/item_revoke"
+            android:background="@drawable/menu_items_temp_selected_bg"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/undo"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/black"
+                android:text="@string/menu_items_undo"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
         <View
             android:id="@+id/line1"
-            app:layout_constraintTop_toBottomOf="@id/item_eraser"
+            app:layout_constraintTop_toBottomOf="@id/item_revoke"
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
             android:layout_marginTop="0.5dp"
