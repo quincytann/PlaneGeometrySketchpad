@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import android.view.View
 import com.example.planegeometry.utils.CLog
 import com.example.planegeometry.utils.DimenUtils
+import com.example.planegeometry.views.MenuView.Companion.CIRCLE
 import com.example.planegeometry.views.MenuView.Companion.CLEAR
 import com.example.planegeometry.views.MenuView.Companion.ERASER
 import com.example.planegeometry.views.MenuView.Companion.PEN
@@ -131,27 +132,43 @@ class BoardView @JvmOverloads constructor(
                     MotionEvent.ACTION_DOWN -> {
                         pointCount ++
                         clickTimes ++
-                        preX = x
-                        preY = y
                         if (clickTimes == 2) {
                             clickTimes = 0
                             path.lineTo(x, y)
+                            canvas.apply {
+                                drawPoint(x, y, paint)
+                                drawText("P${pointCount}", x, y, textPaint)
+                                drawPath(path, paint)
+                            }
+                            path.reset()
                         } else {
                             path.moveTo(x, y)
+                            canvas.apply {
+                                drawPoint(x, y, paint)
+                                drawText("P${pointCount}", x, y, textPaint)
+                            }
                         }
                     }
                 }
-                canvas.apply {
-                    drawPoint(x, y, paint)
-                    drawText("P${pointCount}", preX, preY, textPaint)
-                    drawPath(path, paint)
-                }
             }
+
             TRIANGLE -> {
 
             }
+
             RECTANGULAR -> {
 
+            }
+
+            CIRCLE -> {
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        path.addCircle(x, y, 20f, Path.Direction.CW)
+                        mPaintedList.add(PaintData(Paint(paint), Path(path)))
+                        canvas.drawPath(path, paint)
+                        path.reset()
+                    }
+                }
             }
         }
         invalidate()

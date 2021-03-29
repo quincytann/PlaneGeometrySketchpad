@@ -30,6 +30,7 @@ class MenuView @JvmOverloads constructor(
             add(view.findViewById(R.id.item_segment))
             add(view.findViewById(R.id.item_triangle))
             add(view.findViewById(R.id.item_rectangular))
+            add(view.findViewById(R.id.item_circle))
         }
     }
 
@@ -82,6 +83,7 @@ class MenuView @JvmOverloads constructor(
         const val SEGMENT = 5
         const val TRIANGLE = 6
         const val RECTANGULAR = 7
+        const val CIRCLE = 8
     }
 
 }

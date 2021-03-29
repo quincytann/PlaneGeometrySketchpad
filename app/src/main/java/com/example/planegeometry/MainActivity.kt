@@ -6,6 +6,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import com.example.planegeometry.utils.ProxyClickListener
+import com.example.planegeometry.views.MenuView.Companion.CIRCLE
 import com.example.planegeometry.views.MenuView.Companion.CLEAR
 import com.example.planegeometry.views.MenuView.Companion.ERASER
 import com.example.planegeometry.views.MenuView.Companion.PEN
@@ -84,6 +85,9 @@ class MainActivity : AppCompatActivity() {
             }
             add {
                 board_view.setPaintMode(RECTANGULAR)
+            }
+            add {
+                board_view.setPaintMode(CIRCLE)
             }
         }
         menu_page.setClickItemCallBack(clickListener)
