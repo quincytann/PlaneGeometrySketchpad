@@ -38,7 +38,8 @@
             android:id="@+id/board_view"
             app:layout_constraintTop_toBottomOf="@id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:background="@drawable/boardview_bg"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

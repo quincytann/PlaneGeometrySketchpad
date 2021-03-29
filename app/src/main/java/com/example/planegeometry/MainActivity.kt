@@ -14,6 +14,7 @@ import com.example.planegeometry.views.MenuView.Companion.RECTANGULAR
 import com.example.planegeometry.views.MenuView.Companion.SEGMENT
 import com.example.planegeometry.views.MenuView.Companion.TRIANGLE
 import kotlinx.android.synthetic.main.draw_layout.*
+import java.lang.Exception
 
 
 class MainActivity : AppCompatActivity() {
@@ -62,6 +63,7 @@ class MainActivity : AppCompatActivity() {
         val clickListener = mutableListOf<() -> Unit>().apply {
             add {
                 board_view.setPaintMode(PEN)
+                startHideMenuBar()
             }
             add {
                 board_view.apply {
@@ -70,6 +72,7 @@ class MainActivity : AppCompatActivity() {
             }
             add {
                 board_view.setPaintMode(ERASER)
+                startHideMenuBar()
             }
             add {
                 board_view.revoked()
@@ -79,17 +82,32 @@ class MainActivity : AppCompatActivity() {
             }
             add {
                 board_view.setPaintMode(SEGMENT)
+                startHideMenuBar()
             }
             add {
                 board_view.setPaintMode(TRIANGLE)
+                startHideMenuBar()
             }
             add {
                 board_view.setPaintMode(RECTANGULAR)
+                startHideMenuBar()
             }
             add {
                 board_view.setPaintMode(CIRCLE)
+                startHideMenuBar()
             }
         }
         menu_page.setClickItemCallBack(clickListener)
+    }
+
+    private fun startHideMenuBar() {
+        Thread {
+            try {
+                Thread.sleep(500)
+            } catch (e: Exception) {
+
+            }
+            drawer_layout.closeDrawer(GravityCompat.END)
+        }.start()
     }
 }
