@@ -1,6 +1,5 @@
 package com.example.planegeometry.views
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
@@ -119,7 +118,7 @@ class BoardView @JvmOverloads constructor(
                         canvas.drawPath(path, paint)
                     }
                     MotionEvent.ACTION_UP -> {
-                        mPaintedList.add(PaintData(Paint(paint), Path(path)))    // 记录每一笔
+                        mPaintedList.add(PaintData(Paint(paint), Path(path)))    // 抬起手指后记录每一笔，方便撤销操作
                         path.reset()
                     }
                 }
@@ -177,30 +176,22 @@ class BoardView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-
-        // 大于最大可缓存的笔画固化下来
-        while (mPaintedList.size > MAX_PAINT_RECORD) {
-            val paintData = mPaintedList.removeFirst()
-            paintData.draw(holdCanvas)
-        }
-        canvas.drawBitmap(holdBitmap, 0f, 0f, null)
-        for (paint in mPaintedList) {
-            paint.draw(canvas)
-        }
-
         canvas.drawBitmap(bitmap, 0f, 0f, null)
     }
 
 
     private fun reDraw(paintList: MutableList<PaintData>) {
         if (paintList.size > 0) {
-            val paint = paintList.removeLast()
+            val lastPaint = paintList.removeLast()
             if (paintList === mPaintedList) {
-                mRevokedList.add(paint)
+                mRevokedList.add(lastPaint)
             } else {
-                mPaintedList.add(paint)
+                mPaintedList.add(lastPaint)
             }
             canvas.drawColor(0, PorterDuff.Mode.CLEAR)
+            for (paintData in mPaintedList) {
+                paintData.draw(canvas)
+            }
             invalidate()
         }
     }
@@ -208,7 +199,6 @@ class BoardView @JvmOverloads constructor(
 
     companion object {
         const val TAG = "BoardView"
-        const val MAX_PAINT_RECORD = 20
     }
 }
 
