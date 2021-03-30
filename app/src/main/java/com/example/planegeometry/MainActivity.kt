@@ -96,6 +96,12 @@ class MainActivity : AppCompatActivity() {
                 board_view.setPaintMode(CIRCLE)
                 startHideMenuBar()
             }
+            add {
+                // todo sava
+            }
+            add {
+                // todo share
+            }
         }
         menu_page.setClickItemCallBack(clickListener)
     }

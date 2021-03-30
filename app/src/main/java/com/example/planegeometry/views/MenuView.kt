@@ -31,6 +31,8 @@ class MenuView @JvmOverloads constructor(
             add(view.findViewById(R.id.item_triangle))
             add(view.findViewById(R.id.item_rectangular))
             add(view.findViewById(R.id.item_circle))
+            add(view.findViewById(R.id.item_save))
+            add(view.findViewById(R.id.item_share))
         }
     }
 
