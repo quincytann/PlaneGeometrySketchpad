@@ -17,20 +17,28 @@ import com.example.planegeometry.views.MenuView.Companion.PEN
 import com.example.planegeometry.views.MenuView.Companion.RECTANGULAR
 import com.example.planegeometry.views.MenuView.Companion.SEGMENT
 import com.example.planegeometry.views.MenuView.Companion.TRIANGLE
+import kotlin.math.sqrt
 
 class BoardView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
+    // 路径
     private var path: Path = Path()
+    private var prePath: Path = Path()
+
+    // 画笔
     private var paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG)
+    private var drawPaint: Paint
+    private var eraserPaint: Paint
     private var textPaint: Paint
     private var paintMode: Int = PEN
+
+    // 画布 && bitmap
     private lateinit var canvas: Canvas
     private lateinit var bitmap: Bitmap
-    private lateinit var holdCanvas: Canvas
-    private lateinit var holdBitmap: Bitmap
 
+    // 一些临时变量
     private var preX = 0f
     private var preY = 0f
     private var clickTimes: Int = 0
@@ -48,6 +56,15 @@ class BoardView @JvmOverloads constructor(
             isAntiAlias = true //开启抗锯齿
             isDither = true //开启防抖
         }
+
+        drawPaint = Paint(paint)
+
+        eraserPaint = Paint(paint)
+        eraserPaint.apply {
+            xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+            strokeWidth = DimenUtils.dp2px(8f)
+        }
+
         textPaint = Paint(paint)
         textPaint.apply {
             color = Color.BLUE
@@ -58,13 +75,7 @@ class BoardView @JvmOverloads constructor(
 
     fun setPaintMode(mode: Int) {
         paintMode = mode
-        if (mode == ERASER) {
-            paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
-            paint.strokeWidth = DimenUtils.dp2px(8f)
-        } else {
-            paint.xfermode = null
-            paint.strokeWidth = DimenUtils.dp2px(2f)
-        }
+        paint = if (mode == ERASER) eraserPaint else drawPaint
         path.reset()
         clickTimes = 0
     }
@@ -73,7 +84,6 @@ class BoardView @JvmOverloads constructor(
         path.reset()
         mPaintedList.clear()
         mRevokedList.clear()
-        holdCanvas.drawColor(0, PorterDuff.Mode.CLEAR)
         canvas.drawColor(0, PorterDuff.Mode.CLEAR)
         clickTimes = 0
         pointCount = 0
@@ -94,10 +104,6 @@ class BoardView @JvmOverloads constructor(
         if (!this::bitmap.isInitialized) {
             bitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.ARGB_8888)
             canvas = Canvas(bitmap)
-        }
-        if (!this::holdBitmap.isInitialized) {
-            holdBitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.ARGB_8888)
-            holdCanvas = Canvas(holdBitmap)
         }
     }
 
@@ -134,10 +140,10 @@ class BoardView @JvmOverloads constructor(
                     MotionEvent.ACTION_DOWN -> {
                         pointCount ++
                         clickTimes ++
-                        if (clickTimes == 2) {
-                            path.lineTo(x, y)
-                        } else {
+                        if (clickTimes == 1) {
                             path.moveTo(x, y)
+                        } else {
+                            path.lineTo(x, y)
                         }
                         canvas.apply {
                             drawPoint(x, y, paint)
@@ -154,20 +160,79 @@ class BoardView @JvmOverloads constructor(
             }
 
             TRIANGLE -> {
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        clickTimes ++
+                        pointCount ++
+                        canvas.apply {
+                            drawPoint(x, y, paint)
+                            drawText("P${pointCount}", x, y, textPaint)
+                        }
+                        when (clickTimes) {
+                            1 -> {
+                                path.moveTo(x, y)
+                                preX = x
+                                preY = y
+                            }
+                            2 -> {
+                                path.lineTo(x, y)
+                            }
+                            3 -> {
+                                path.lineTo(x, y)
+                                path.lineTo(preX, preY)
+                                mPaintedList.add(PaintData(Paint(paint), Path(path)))
+                                canvas.drawPath(path, paint)
 
+                                clickTimes = 0
+                                path.reset()
+                            }
+                        }
+                    }
+                }
             }
 
             RECTANGULAR -> {
-
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        clickTimes ++
+                        if (clickTimes == 1) {
+                            canvas.apply {
+                                drawPoint(x, y, paint)
+                            }
+                            preX = x
+                            preY = y
+                        } else if (clickTimes == 2) {
+                            path.addRect(preX, preY, x, y, Path.Direction.CW)
+                            canvas.drawPath(path, paint)
+                            mPaintedList.add(PaintData(Paint(paint), Path(path)))
+                            path.reset()
+                            clickTimes = 0
+                        }
+                    }
+                }
             }
 
             CIRCLE -> {
+                // 暂且使用两点式画出来，实时拖动绘制还有点问题没找到合适解决方案
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        path.addCircle(x, y, 20f, Path.Direction.CW)
-                        mPaintedList.add(PaintData(Paint(paint), Path(path)))
-                        canvas.drawPath(path, paint)
-                        path.reset()
+                        clickTimes ++
+                        if (clickTimes == 1) {
+                            pointCount ++
+                            canvas.apply {
+                                drawPoint(x, y, paint)
+                                drawText("P${pointCount}", x, y, textPaint)
+                            }
+                            preX = x
+                            preY = y
+                        } else if (clickTimes == 2) {
+                            val radius = sqrt((x-preX)*(x-preX)+(y-preY)*(y-preY))
+                            path.addCircle(preX, preY, radius, Path.Direction.CW)
+                            canvas.drawPath(path, paint)
+                            mPaintedList.add(PaintData(Paint(paint), Path(path)))
+                            path.reset()
+                            clickTimes = 0
+                        }
                     }
                 }
             }
