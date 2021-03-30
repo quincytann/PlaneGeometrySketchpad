@@ -132,20 +132,19 @@ class BoardView @JvmOverloads constructor(
                         pointCount ++
                         clickTimes ++
                         if (clickTimes == 2) {
-                            clickTimes = 0
                             path.lineTo(x, y)
-                            canvas.apply {
-                                drawPoint(x, y, paint)
-                                drawText("P${pointCount}", x, y, textPaint)
-                                drawPath(path, paint)
-                            }
-                            path.reset()
                         } else {
                             path.moveTo(x, y)
-                            canvas.apply {
-                                drawPoint(x, y, paint)
-                                drawText("P${pointCount}", x, y, textPaint)
-                            }
+                        }
+                        canvas.apply {
+                            drawPoint(x, y, paint)
+                            drawTextOnPath("P${pointCount}",path, x, y, textPaint)
+                            drawPath(path, paint)
+                            mPaintedList.add(PaintData(Paint(paint), Path(path)))
+                        }
+                        if (clickTimes == 2) {
+                            path.reset()
+                            clickTimes = 0
                         }
                     }
                 }
