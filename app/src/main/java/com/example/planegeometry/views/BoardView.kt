@@ -5,8 +5,11 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Toast
+import com.example.planegeometry.R
 import com.example.planegeometry.utils.CLog
 import com.example.planegeometry.utils.DimenUtils
+import com.example.planegeometry.utils.MyApplication
 import com.example.planegeometry.views.MenuView.Companion.CIRCLE
 import com.example.planegeometry.views.MenuView.Companion.CLEAR
 import com.example.planegeometry.views.MenuView.Companion.ERASER
@@ -192,6 +195,8 @@ class BoardView @JvmOverloads constructor(
                 paintData.draw(canvas)
             }
             invalidate()
+        } else {
+            Toast.makeText(context, R.string.toast_no_more_record, Toast.LENGTH_SHORT).show()
         }
     }
 

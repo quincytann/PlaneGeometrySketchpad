@@ -34,9 +34,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun initView() {
         //CLog.d(TAG, "width: ${ScreenUtil.getScreenWidth()}  height: ${ScreenUtil.getScreenHeight()}")
-        drawer_layout.apply {
-            setScrimColor(Color.TRANSPARENT) // 去除侧边栏滑出时底部页面默认阴影
-        }
+
+        // 去除侧边栏滑出时底部页面默认阴影
+        drawer_layout.setScrimColor(Color.TRANSPARENT)
 
         // 隐藏statusBar&&navigationBar得到全屏效果
         val decorView = window.decorView
@@ -104,10 +104,10 @@ class MainActivity : AppCompatActivity() {
         Thread {
             try {
                 Thread.sleep(500)
+                drawer_layout.closeDrawer(GravityCompat.END)
             } catch (e: Exception) {
-
+                // 暂不处理
             }
-            drawer_layout.closeDrawer(GravityCompat.END)
         }.start()
     }
 }
