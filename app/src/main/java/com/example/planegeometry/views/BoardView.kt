@@ -71,6 +71,8 @@ class BoardView @JvmOverloads constructor(
             style = Paint.Style.FILL
             textSize = DimenUtils.sp2px(15f)
         }
+
+        isDrawingCacheEnabled = true
     }
 
     fun setPaintMode(mode: Int) {
@@ -90,13 +92,19 @@ class BoardView @JvmOverloads constructor(
         invalidate()
     }
 
+    fun canRevoked(): Boolean = mPaintedList.size > 0
+
     fun revoked() {
         reDraw(mPaintedList)
     }
 
+    fun canUnRevoked(): Boolean = mRevokedList.size > 0
+
     fun unRevoked() {
         reDraw(mRevokedList)
     }
+
+    fun getBitmap(): Bitmap = bitmap
 
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -248,21 +256,17 @@ class BoardView @JvmOverloads constructor(
 
 
     private fun reDraw(paintList: MutableList<PaintData>) {
-        if (paintList.size > 0) {
-            val lastPaint = paintList.removeLast()
-            if (paintList === mPaintedList) {
-                mRevokedList.add(lastPaint)
-            } else {
-                mPaintedList.add(lastPaint)
-            }
-            canvas.drawColor(0, PorterDuff.Mode.CLEAR)
-            for (paintData in mPaintedList) {
-                paintData.draw(canvas)
-            }
-            invalidate()
+        val lastPaint = paintList.removeLast()
+        if (paintList === mPaintedList) {
+            mRevokedList.add(lastPaint)
         } else {
-            Toast.makeText(context, R.string.toast_no_more_record, Toast.LENGTH_SHORT).show()
+            mPaintedList.add(lastPaint)
         }
+        canvas.drawColor(0, PorterDuff.Mode.CLEAR)
+        for (paintData in mPaintedList) {
+            paintData.draw(canvas)
+        }
+        invalidate()
     }
 
 

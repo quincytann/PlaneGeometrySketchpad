@@ -71,7 +71,7 @@ class MenuView @JvmOverloads constructor(
     }
 
     private fun useIndependentBackground(id: Int): Boolean {
-        return id == CLEAR || id == REVOKE || id == UNDO
+        return id == CLEAR || id == REVOKE || id == UNDO || id == SAVE || id == SHARE
     }
 
     companion object {
@@ -86,6 +86,8 @@ class MenuView @JvmOverloads constructor(
         const val TRIANGLE = 6
         const val RECTANGULAR = 7
         const val CIRCLE = 8
+        const val SAVE = 9
+        const val SHARE = 10
     }
 
 }

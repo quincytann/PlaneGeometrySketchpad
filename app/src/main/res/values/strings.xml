@@ -16,5 +16,8 @@
     <string name="menu_items_save">保存</string>
 
 
-    <string name="toast_no_more_record">无更多记录!</string>
+    <string name="toast_no_more_record">无更多记录</string>
+    <string name="toast_save_success">保存成功</string>
+    <string name="toast_save_fail">保存失败</string>
+
 </resources>

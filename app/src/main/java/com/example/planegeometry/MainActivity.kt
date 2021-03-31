@@ -1,10 +1,15 @@
 package com.example.planegeometry
 
+import android.app.Activity
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
+import com.example.planegeometry.utils.FileUtil
 import com.example.planegeometry.utils.ProxyClickListener
 import com.example.planegeometry.views.MenuView.Companion.CIRCLE
 import com.example.planegeometry.views.MenuView.Companion.CLEAR
@@ -18,10 +23,6 @@ import java.lang.Exception
 
 
 class MainActivity : AppCompatActivity() {
-
-    companion object {
-        const val TAG = "MainActivity"
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,10 +76,18 @@ class MainActivity : AppCompatActivity() {
                 startHideMenuBar()
             }
             add {
-                board_view.revoked()
+                if (board_view.canRevoked()) {
+                    board_view.revoked()
+                } else {
+                    Toast.makeText(this@MainActivity, R.string.toast_no_more_record, Toast.LENGTH_SHORT).show()
+                }
             }
             add {
-                board_view.unRevoked()
+                if (board_view.canUnRevoked()) {
+                    board_view.unRevoked()
+                } else {
+                    Toast.makeText(this@MainActivity, R.string.toast_no_more_record, Toast.LENGTH_SHORT).show()
+                }
             }
             add {
                 board_view.setPaintMode(SEGMENT)
@@ -97,7 +106,13 @@ class MainActivity : AppCompatActivity() {
                 startHideMenuBar()
             }
             add {
-                // todo sava
+                verifyStoragePermission()
+                val saveState = FileUtil.saveImg(board_view.getBitmap())
+                if (saveState) {
+                    Toast.makeText(this@MainActivity, R.string.toast_save_success, Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@MainActivity, R.string.toast_save_fail, Toast.LENGTH_SHORT).show()
+                }
             }
             add {
                 // todo share
@@ -115,5 +130,22 @@ class MainActivity : AppCompatActivity() {
                 // 暂不处理
             }
         }.start()
+    }
+
+    private fun verifyStoragePermission() {
+        try {
+            val permission = ActivityCompat.checkSelfPermission(this, "android.permission.WRITE_EXTERNAL_STORAGE")
+            if (permission != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    companion object {
+        const val TAG = "MainActivity"
+        const val REQUEST_EXTERNAL_STORAGE = 1
+        val PERMISSIONS_STORAGE = arrayOf("android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE")
     }
 }
