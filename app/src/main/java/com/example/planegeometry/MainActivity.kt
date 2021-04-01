@@ -106,12 +106,11 @@ class MainActivity : AppCompatActivity() {
                 startHideMenuBar()
             }
             add {
-                verifyStoragePermission()
-                val saveState = FileUtil.saveImg(board_view.getBitmap())
-                if (saveState) {
-                    Toast.makeText(this@MainActivity, R.string.toast_save_success, Toast.LENGTH_SHORT).show()
+                val state = verifyStoragePermission()
+                if (state) {
+                    startSaveImg()
                 } else {
-                    Toast.makeText(this@MainActivity, R.string.toast_save_fail, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, R.string.toast_no_file_write_permission, Toast.LENGTH_SHORT).show()
                 }
             }
             add {
@@ -132,20 +131,44 @@ class MainActivity : AppCompatActivity() {
         }.start()
     }
 
-    private fun verifyStoragePermission() {
+    private fun startSaveImg() {
+        val saveState = FileUtil.saveImg(board_view.getBitmap())
+        if (saveState) {
+            Toast.makeText(this@MainActivity, R.string.toast_save_success, Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this@MainActivity, R.string.toast_save_fail, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun verifyStoragePermission(): Boolean {
         try {
             val permission = ActivityCompat.checkSelfPermission(this, "android.permission.WRITE_EXTERNAL_STORAGE")
-            if (permission != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE)
+            return if (permission != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE_CODE)
+                false
+            } else {
+                true
             }
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+        return false
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_EXTERNAL_STORAGE_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startSaveImg()
+            } else {
+                Toast.makeText(this@MainActivity, R.string.toast_no_file_write_permission, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
     companion object {
         const val TAG = "MainActivity"
-        const val REQUEST_EXTERNAL_STORAGE = 1
+        const val REQUEST_EXTERNAL_STORAGE_CODE = 1
         val PERMISSIONS_STORAGE = arrayOf("android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE")
     }
 }

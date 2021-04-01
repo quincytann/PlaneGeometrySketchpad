@@ -1,6 +1,8 @@
 package com.example.planegeometry.utils
 
+import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Environment
 import java.io.File
 import java.io.FileOutputStream
@@ -8,27 +10,28 @@ import java.lang.Exception
 
 object FileUtil {
 
-    fun test() {
-        CLog.d("quincy", Environment.getExternalStorageDirectory().toString())
-        CLog.d("quincy", Environment.getDataDirectory().toString())
-        CLog.d("quincy", Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString())
-    }
-
     fun saveImg(bm: Bitmap): Boolean {
-        // todo 格式区别 && bitmap来源 && 保存步骤方式
         val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                "IMG-" + System.currentTimeMillis() + ".png")
+                "IMG-" + System.currentTimeMillis() + ".jpg")
         if (file.exists()) {
             file.delete()
         }
         try {
             val fos = FileOutputStream(file)
-            bm.compress(Bitmap.CompressFormat.PNG, 100, fos)
+            val state = bm.compress(Bitmap.CompressFormat.JPEG, 80, fos)
+            fos.flush()
+            fos.close()
+
+            // 通知更新到相册
+            val uri = Uri.fromFile(file)
+            val intent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri)
+            MyApplication.context.sendBroadcast(intent)
+
+            return state
         } catch (e: Exception) {
             e.printStackTrace()
-            return false
         }
-        return true
+        return false
     }
 
 }

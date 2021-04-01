@@ -104,7 +104,12 @@ class BoardView @JvmOverloads constructor(
         reDraw(mRevokedList)
     }
 
-    fun getBitmap(): Bitmap = bitmap
+    fun getBitmap(): Bitmap {
+        val bm = drawingCache
+        val result = Bitmap.createBitmap(bm)
+        destroyDrawingCache()
+        return result
+    }
 
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

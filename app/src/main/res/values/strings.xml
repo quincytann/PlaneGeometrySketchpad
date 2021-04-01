@@ -19,5 +19,6 @@
     <string name="toast_no_more_record">无更多记录</string>
     <string name="toast_save_success">保存成功</string>
     <string name="toast_save_fail">保存失败</string>
+    <string name="toast_no_file_write_permission">无文件写入权限</string>
 
 </resources>
