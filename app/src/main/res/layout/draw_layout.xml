@@ -43,14 +43,20 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-    <com.example.planegeometry.views.MenuView
-        android:id="@+id/menu_page"
+    <ScrollView
         android:layout_gravity="end"
-        android:layout_width="120dp"
-        android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize"
-        android:orientation="vertical"
-        android:background="@color/light_gray_30">
-    </com.example.planegeometry.views.MenuView>
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
+
+        <com.example.planegeometry.views.MenuView
+            android:id="@+id/menu_page"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/light_gray_30">
+        </com.example.planegeometry.views.MenuView>
+    </ScrollView>
 
 </androidx.drawerlayout.widget.DrawerLayout>
