@@ -5,11 +5,9 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Toast
-import com.example.planegeometry.R
 import com.example.planegeometry.utils.CLog
 import com.example.planegeometry.utils.DimenUtils
-import com.example.planegeometry.utils.MyApplication
+import com.example.planegeometry.views.BoardView.Companion.TYPE_LINE
 import com.example.planegeometry.views.MenuView.Companion.CIRCLE
 import com.example.planegeometry.views.MenuView.Companion.CLEAR
 import com.example.planegeometry.views.MenuView.Companion.ERASER
@@ -111,7 +109,6 @@ class BoardView @JvmOverloads constructor(
         return result
     }
 
-
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         if (!this::bitmap.isInitialized) {
@@ -125,7 +122,7 @@ class BoardView @JvmOverloads constructor(
         val x = event.x
         val y = event.y
         CLog.d(TAG, "onTouchEvent")
-        when(paintMode) {
+        when (paintMode) {
             PEN, ERASER -> {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
@@ -140,31 +137,23 @@ class BoardView @JvmOverloads constructor(
                         canvas.drawPath(path, paint)
                     }
                     MotionEvent.ACTION_UP -> {
-                        mPaintedList.add(PaintData(Paint(paint), Path(path)))    // 抬起手指后记录每一笔，方便撤销操作
+                        mPaintedList.add(PaintData(Paint(paint), Path(path)))
                         path.reset()
                     }
                 }
             }
-            CLEAR -> {
 
-            }
             SEGMENT -> {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        pointCount ++
-                        clickTimes ++
+                        clickTimes++
+                        drawPointText(x, y)
                         if (clickTimes == 1) {
                             path.moveTo(x, y)
                         } else {
                             path.lineTo(x, y)
-                        }
-                        canvas.apply {
-                            drawPoint(x, y, paint)
-                            drawTextOnPath("P${pointCount}",path, x, y, textPaint)
-                            drawPath(path, paint)
+                            canvas.drawPath(path, paint)
                             mPaintedList.add(PaintData(Paint(paint), Path(path)))
-                        }
-                        if (clickTimes == 2) {
                             path.reset()
                             clickTimes = 0
                         }
@@ -175,12 +164,8 @@ class BoardView @JvmOverloads constructor(
             TRIANGLE -> {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        clickTimes ++
-                        pointCount ++
-                        canvas.apply {
-                            drawPoint(x, y, paint)
-                            drawText("P${pointCount}", x, y, textPaint)
-                        }
+                        clickTimes++
+                        drawPointText(x, y)
                         when (clickTimes) {
                             1 -> {
                                 path.moveTo(x, y)
@@ -189,12 +174,13 @@ class BoardView @JvmOverloads constructor(
                             }
                             2 -> {
                                 path.lineTo(x, y)
+                                drawPath()
                             }
                             3 -> {
                                 path.lineTo(x, y)
+                                drawPath()
                                 path.lineTo(preX, preY)
-                                mPaintedList.add(PaintData(Paint(paint), Path(path)))
-                                canvas.drawPath(path, paint)
+                                drawPath()
 
                                 clickTimes = 0
                                 path.reset()
@@ -205,19 +191,19 @@ class BoardView @JvmOverloads constructor(
             }
 
             RECTANGULAR -> {
+                // 暂且使用两点式画出来，实时拖动绘制还有点问题没找到合适解决方案
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        clickTimes ++
+                        clickTimes++
                         if (clickTimes == 1) {
-                            canvas.apply {
-                                drawPoint(x, y, paint)
-                            }
+                            drawPointText(x, y)
                             preX = x
                             preY = y
                         } else if (clickTimes == 2) {
-                            path.addRect(preX, preY, x, y, Path.Direction.CW)
-                            canvas.drawPath(path, paint)
-                            mPaintedList.add(PaintData(Paint(paint), Path(path)))
+                            drawRectFRemainingPointsText(preX, preY, x, y)
+                            val rectF = getRectF(preX, preY, x, y)
+                            path.addRect(rectF, Path.Direction.CW)
+                            drawPath()
                             path.reset()
                             clickTimes = 0
                         }
@@ -229,20 +215,15 @@ class BoardView @JvmOverloads constructor(
                 // 暂且使用两点式画出来，实时拖动绘制还有点问题没找到合适解决方案
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        clickTimes ++
+                        clickTimes++
                         if (clickTimes == 1) {
-                            pointCount ++
-                            canvas.apply {
-                                drawPoint(x, y, paint)
-                                drawText("P${pointCount}", x, y, textPaint)
-                            }
+                            drawPointText(x, y)
                             preX = x
                             preY = y
                         } else if (clickTimes == 2) {
-                            val radius = sqrt((x-preX)*(x-preX)+(y-preY)*(y-preY))
+                            val radius = sqrt((x - preX) * (x - preX) + (y - preY) * (y - preY))
                             path.addCircle(preX, preY, radius, Path.Direction.CW)
-                            canvas.drawPath(path, paint)
-                            mPaintedList.add(PaintData(Paint(paint), Path(path)))
+                            drawPath()
                             path.reset()
                             clickTimes = 0
                         }
@@ -264,27 +245,83 @@ class BoardView @JvmOverloads constructor(
         val lastPaint = paintList.removeLast()
         if (paintList === mPaintedList) {
             mRevokedList.add(lastPaint)
+            // 将一系列关联的点一起带上 否则会显得不美观
+            while (paintList.isNotEmpty() && paintList.last().mType == TYPE_POINT) {
+                mRevokedList.add(paintList.removeLast())
+            }
         } else {
             mPaintedList.add(lastPaint)
+            while (paintList.isNotEmpty() && paintList.last().mType != TYPE_POINT) {
+                mPaintedList.add(paintList.removeLast())
+            }
         }
         canvas.drawColor(0, PorterDuff.Mode.CLEAR)
         for (paintData in mPaintedList) {
-            paintData.draw(canvas)
+            if (paintData.mType == TYPE_LINE) {
+                paintData.drawPath(canvas)
+            } else if (paintData.mType == TYPE_POINT) {
+                paintData.drawPointText(canvas)
+            }
         }
         invalidate()
     }
 
+    private fun getPointText(): String = "P${pointCount}"
+
+    // 写出点的文本形式并记录
+    private fun drawPointText(x: Float, y: Float) {
+        canvas.apply {
+            drawPoint(x, y, paint)
+            drawText(getPointText(), x, y, textPaint)
+        }
+        mPaintedList.add(PaintData(Paint(textPaint), null, PointData(x, y, getPointText()), TYPE_POINT))
+        pointCount++
+    }
+
+    // 画出path并记录
+    private fun drawPath() {
+        canvas.drawPath(path, paint)
+        mPaintedList.add(PaintData(Paint(paint), Path(path)))
+    }
+
+    // 除了第一个点击的点剩余的三个点
+    private fun drawRectFRemainingPointsText(x1: Float, y1: Float, x2: Float, y2: Float) {
+        drawPointText(x1, y2)
+        drawPointText(x2, y1)
+        drawPointText(x2, y2)
+    }
+
+    // 根据两次点击点的坐标构造矩形
+    private fun getRectF(x1: Float, y1: Float, x2: Float, y2: Float): RectF{
+        if (x1 <= x2 && y1 >= y2) return RectF(x1, y2, x2, y1)
+        if (x1 <= x2 && y1 <= y2) return RectF(x1, y1, x2, y2)
+        if (x1 >= x2 && y1 >= y2) return RectF(x2, y2, x1, y1)
+        if (x1 >= x2 && y1 <= y2) return RectF(x2, y1, x1, y2)
+        return RectF()
+    }
 
     companion object {
         const val TAG = "BoardView"
+        const val TYPE_POINT = 1
+        const val TYPE_LINE = 2
     }
 }
 
 
+data class PaintData(
+        val mPaint: Paint,
+        val mPath: Path? = null,
+        val mPointText: PointData? = null,
+        val mType: Int = TYPE_LINE
+) {
 
-data class PaintData(var mPaint: Paint, var mPath: Path) {
+    fun drawPath(canvas: Canvas) {
+        canvas.drawPath(mPath!!, mPaint)
+    }
 
-    fun draw(canvas: Canvas) {
-        canvas.drawPath(mPath, mPaint)
+    fun drawPointText(canvas: Canvas) {
+        canvas.drawText(mPointText!!.text, mPointText.x, mPointText.y, mPaint)
     }
 }
+
+data class PointData(val x: Float, val y: Float, val text: String)
