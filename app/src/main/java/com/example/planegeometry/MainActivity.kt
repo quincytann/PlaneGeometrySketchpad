@@ -1,24 +1,26 @@
 package com.example.planegeometry
 
-import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.GravityCompat
 import com.example.planegeometry.utils.FileUtil
 import com.example.planegeometry.utils.ProxyClickListener
 import com.example.planegeometry.views.MenuView.Companion.CIRCLE
-import com.example.planegeometry.views.MenuView.Companion.CLEAR
 import com.example.planegeometry.views.MenuView.Companion.ERASER
 import com.example.planegeometry.views.MenuView.Companion.PEN
 import com.example.planegeometry.views.MenuView.Companion.RECTANGULAR
 import com.example.planegeometry.views.MenuView.Companion.SEGMENT
 import com.example.planegeometry.views.MenuView.Companion.TRIANGLE
 import kotlinx.android.synthetic.main.draw_layout.*
+import java.io.File
 import java.lang.Exception
 
 
@@ -79,14 +81,22 @@ class MainActivity : AppCompatActivity() {
                 if (board_view.canRevoked()) {
                     board_view.revoked()
                 } else {
-                    Toast.makeText(this@MainActivity, R.string.toast_no_more_record, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@MainActivity,
+                        R.string.toast_no_more_record,
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
             add {
                 if (board_view.canUnRevoked()) {
                     board_view.unRevoked()
                 } else {
-                    Toast.makeText(this@MainActivity, R.string.toast_no_more_record, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@MainActivity,
+                        R.string.toast_no_more_record,
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
             add {
@@ -110,14 +120,44 @@ class MainActivity : AppCompatActivity() {
                 if (state) {
                     startSaveImg()
                 } else {
-                    Toast.makeText(this@MainActivity, R.string.toast_no_file_write_permission, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@MainActivity,
+                        R.string.toast_no_file_write_permission,
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
             add {
-                // todo share
+                val state = verifyStoragePermission()
+                if (state) {
+                    showShare()
+                } else {
+                    Toast.makeText(
+                        this@MainActivity,
+                        R.string.toast_no_file_write_permission,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
         menu_page.setClickItemCallBack(clickListener)
+    }
+
+    private fun showShare() {
+        val shareIntent = Intent()
+        val file = FileUtil.getShareFile(board_view.getBitmap())
+        val uri = FileProvider.getUriForFile(
+            this@MainActivity,
+            "com.example.planegeometry.provider",
+            file
+        )
+        shareIntent.apply {
+            action = Intent.ACTION_SEND
+            type = "image/*"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            startActivity(Intent.createChooser(shareIntent, null))
+        }
     }
 
     private fun startHideMenuBar() {
@@ -134,7 +174,8 @@ class MainActivity : AppCompatActivity() {
     private fun startSaveImg() {
         val saveState = FileUtil.saveImg(board_view.getBitmap())
         if (saveState) {
-            Toast.makeText(this@MainActivity, R.string.toast_save_success, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@MainActivity, R.string.toast_save_success, Toast.LENGTH_SHORT)
+                .show()
         } else {
             Toast.makeText(this@MainActivity, R.string.toast_save_fail, Toast.LENGTH_SHORT).show()
         }
@@ -142,9 +183,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun verifyStoragePermission(): Boolean {
         try {
-            val permission = ActivityCompat.checkSelfPermission(this, "android.permission.WRITE_EXTERNAL_STORAGE")
+            val permission = ActivityCompat.checkSelfPermission(
+                this,
+                "android.permission.WRITE_EXTERNAL_STORAGE"
+            )
             return if (permission != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE_CODE)
+                ActivityCompat.requestPermissions(
+                    this,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE_CODE
+                )
                 false
             } else {
                 true
@@ -155,13 +203,21 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_EXTERNAL_STORAGE_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startSaveImg()
             } else {
-                Toast.makeText(this@MainActivity, R.string.toast_no_file_write_permission, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@MainActivity,
+                    R.string.toast_no_file_write_permission,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -169,6 +225,9 @@ class MainActivity : AppCompatActivity() {
     companion object {
         const val TAG = "MainActivity"
         const val REQUEST_EXTERNAL_STORAGE_CODE = 1
-        val PERMISSIONS_STORAGE = arrayOf("android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE")
+        val PERMISSIONS_STORAGE = arrayOf(
+            "android.permission.READ_EXTERNAL_STORAGE",
+            "android.permission.WRITE_EXTERNAL_STORAGE"
+        )
     }
 }

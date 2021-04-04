@@ -1,18 +1,24 @@
 package com.example.planegeometry.utils
 
+import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment
+import android.provider.MediaStore
+import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.lang.Exception
+
 
 object FileUtil {
 
     fun saveImg(bm: Bitmap): Boolean {
-        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                "IMG-" + System.currentTimeMillis() + ".jpg")
+        val file = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+            "IMG-" + System.currentTimeMillis() + ".jpg"
+        )
         if (file.exists()) {
             file.delete()
         }
@@ -32,6 +38,21 @@ object FileUtil {
             e.printStackTrace()
         }
         return false
+    }
+
+    fun getShareFile(bm: Bitmap): File {
+        val file = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+            "IMG-" + System.currentTimeMillis() + ".jpg"
+        )
+        if (file.exists()) {
+            file.delete()
+        }
+        val fos = FileOutputStream(file)
+        bm.compress(Bitmap.CompressFormat.JPEG, 80, fos)
+        fos.flush()
+        fos.close()
+        return file
     }
 
 }
