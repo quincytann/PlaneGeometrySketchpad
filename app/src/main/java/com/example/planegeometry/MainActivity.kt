@@ -3,7 +3,6 @@ package com.example.planegeometry
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -20,7 +19,6 @@ import com.example.planegeometry.views.MenuView.Companion.RECTANGULAR
 import com.example.planegeometry.views.MenuView.Companion.SEGMENT
 import com.example.planegeometry.views.MenuView.Companion.TRIANGLE
 import kotlinx.android.synthetic.main.draw_layout.*
-import java.io.File
 import java.lang.Exception
 
 
@@ -33,6 +31,25 @@ class MainActivity : AppCompatActivity() {
 
         initView()
         initAction()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_EXTERNAL_STORAGE_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startSaveImg()
+            } else {
+                Toast.makeText(
+                    this@MainActivity,
+                    R.string.toast_no_file_read_and_write_permission,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     private fun initView() {
@@ -122,7 +139,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     Toast.makeText(
                         this@MainActivity,
-                        R.string.toast_no_file_write_permission,
+                        R.string.toast_no_file_read_and_write_permission,
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -134,7 +151,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     Toast.makeText(
                         this@MainActivity,
-                        R.string.toast_no_file_write_permission,
+                        R.string.toast_no_file_read_and_write_permission,
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -144,19 +161,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showShare() {
-        val shareIntent = Intent()
         val file = FileUtil.getShareFile(board_view.getBitmap())
         val uri = FileProvider.getUriForFile(
             this@MainActivity,
             "com.example.planegeometry.provider",
             file
         )
-        shareIntent.apply {
+        Intent().apply {
             action = Intent.ACTION_SEND
             type = "image/*"
             putExtra(Intent.EXTRA_STREAM, uri)
-            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            startActivity(Intent.createChooser(shareIntent, null))
+            startActivity(Intent.createChooser(this, null))
         }
     }
 
@@ -203,24 +218,6 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_EXTERNAL_STORAGE_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startSaveImg()
-            } else {
-                Toast.makeText(
-                    this@MainActivity,
-                    R.string.toast_no_file_write_permission,
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
 
     companion object {
         const val TAG = "MainActivity"
@@ -230,4 +227,5 @@ class MainActivity : AppCompatActivity() {
             "android.permission.WRITE_EXTERNAL_STORAGE"
         )
     }
+
 }

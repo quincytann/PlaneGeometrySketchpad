@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import java.io.BufferedOutputStream
@@ -40,6 +41,8 @@ object FileUtil {
         return false
     }
 
+
+    // 确保有读写权限的前提下保存分享图片
     fun getShareFile(bm: Bitmap): File {
         val file = File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
