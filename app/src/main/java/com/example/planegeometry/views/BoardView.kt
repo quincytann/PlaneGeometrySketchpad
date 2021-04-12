@@ -5,6 +5,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Toast
 import com.example.planegeometry.utils.CLog
 import com.example.planegeometry.utils.DimenUtils
 import com.example.planegeometry.views.BoardView.Companion.TYPE_LINE
@@ -50,7 +51,7 @@ class BoardView @JvmOverloads constructor(
             color = Color.BLACK
             style = Paint.Style.STROKE
             strokeCap = Paint.Cap.ROUND
-            strokeWidth = DimenUtils.dp2px(2f)
+            strokeWidth = DimenUtils.dp2px(3f)
             isAntiAlias = true //开启抗锯齿
             isDither = true //开启防抖
         }
@@ -67,7 +68,7 @@ class BoardView @JvmOverloads constructor(
         textPaint.apply {
             color = Color.BLUE
             style = Paint.Style.FILL
-            textSize = DimenUtils.sp2px(15f)
+            textSize = DimenUtils.sp2px(12f)
         }
 
         isDrawingCacheEnabled = true
@@ -251,9 +252,9 @@ class BoardView @JvmOverloads constructor(
             }
         } else {
             mPaintedList.add(lastPaint)
-            while (paintList.isNotEmpty() && paintList.last().mType != TYPE_POINT) {
-                mPaintedList.add(paintList.removeLast())
-            }
+//            while (paintList.isNotEmpty() && paintList.last().mType != TYPE_POINT) {
+//                mPaintedList.add(paintList.removeLast())
+//            }
         }
         canvas.drawColor(0, PorterDuff.Mode.CLEAR)
         for (paintData in mPaintedList) {
