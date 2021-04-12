@@ -71,6 +71,7 @@ class BoardView @JvmOverloads constructor(
             textSize = DimenUtils.sp2px(12f)
         }
 
+        setPaintMode(PEN)
         isDrawingCacheEnabled = true
     }
 
@@ -82,7 +83,11 @@ class BoardView @JvmOverloads constructor(
     }
 
     fun setPaintColor(color: Int) {
-        paint.color = color
+        drawPaint.color = color
+    }
+
+    fun getPaintColor(): Int {
+        return drawPaint.color
     }
 
     fun clearDraw() {

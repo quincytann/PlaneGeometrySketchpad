@@ -165,9 +165,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showColorPicker() {
-        val mColorPickerDialog = ColorPickerDialog(
+        ColorPickerDialog(
             this@MainActivity,
-            resources.getColor(R.color.black),
+            board_view.getPaintColor(),
             true,
             object : OnColorPickerListener {
                 override fun onColorCancel(dialog: ColorPickerDialog?) {

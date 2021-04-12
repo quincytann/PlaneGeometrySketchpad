@@ -22,7 +22,7 @@
     <string name="toast_save_fail">保存失败</string>
     <string name="toast_no_file_read_and_write_permission">无文件读写权限</string>
 
-    <string name="dialog_title">请选择颜色</string>
+    <string name="dialog_title">请选择画笔颜色:)</string>
     <string name="dialog_positive">确认</string>
     <string name="dialog_negative">取消</string>
 

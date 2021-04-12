@@ -18,19 +18,17 @@ import kotlin.math.roundToInt
 
 class ColorPickerDialog(
     context: Context,
-    defaultColor: Int,
-    isSupportAlpha: Boolean,
-    listener: OnColorPickerListener?
+    private var defaultColor: Int,
+    private val mIsSupportAlpha: Boolean,
+    private val mListener: OnColorPickerListener?
 ) {
     private lateinit var mAlertDialog: AlertDialog
-    private val mIsSupportAlpha: Boolean
-    private val mListener: OnColorPickerListener?
     private val mViewContainer: ViewGroup
     private val mViewPlate: ColorPlateView
     private val mViewHue: View
     private val mViewAlphaBottom: ImageView
     private val mViewAlphaOverlay: View
-    private val mPalteCursor: ImageView
+    private val mPlateCursor: ImageView
     private val mHueCursor: ImageView
     private val mAlphaCursor: ImageView
     private val mViewOldColor: View
@@ -44,18 +42,19 @@ class ColorPickerDialog(
      */
     @SuppressLint("ClickableViewAccessibility")
     private fun initOnTouchListener() {
-        //色彩板的触摸监听
+        // 色彩板的触摸监听
         mViewHue.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(v: View, event: MotionEvent): Boolean {
                 val action: Int = event.action
                 if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE || action == MotionEvent.ACTION_UP) {
-                    var y: Float = event.y
+                    var y = event.y
                     if (y < 0f) y = 0f
                     if (y > mViewHue.measuredHeight) y = mViewHue.measuredHeight - 0.001f
                     var colorHue = 360f - 360f / mViewHue.measuredHeight * y
                     if (colorHue == 360f) colorHue = 0f
                     mViewPlate.setHue(colorHue)
                     moveHueCursor()
+                    this@ColorPickerDialog.colorHue = colorHue
                     mViewNewColor.setBackgroundColor(color)
                     mListener?.onColorChange(this@ColorPickerDialog, color)
                     updateAlphaView()
@@ -66,7 +65,7 @@ class ColorPickerDialog(
         })
 
 
-        //支持透明度时的触摸监听
+        // 支持透明度时的触摸监听
         if (mIsSupportAlpha) mViewAlphaBottom.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(v: View, event: MotionEvent): Boolean {
                 val action: Int = event.action
@@ -77,9 +76,7 @@ class ColorPickerDialog(
                     val alpha = (255f - 255f / mViewAlphaBottom.measuredHeight * y).roundToInt()
                     this@ColorPickerDialog.alpha = alpha
                     moveAlphaCursor()
-                    val color = color
-                    val alphaColor = alpha shl 24 or color and 0x00ffffff
-                    mViewNewColor.setBackgroundColor(alphaColor)
+                    mViewNewColor.setBackgroundColor(color)
                     mListener?.onColorChange(this@ColorPickerDialog, color)
                     return true
                 }
@@ -87,7 +84,7 @@ class ColorPickerDialog(
             }
         })
 
-        //颜色样板的触摸监听
+        // 颜色样板的触摸监听
         mViewPlate.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(v: View, event: MotionEvent): Boolean {
                 val action: Int = event.action
@@ -117,11 +114,13 @@ class ColorPickerDialog(
         mAlertDialog = AlertDialog.Builder(context).create()
         mAlertDialog.apply {
             setTitle(context.resources.getString(R.string.dialog_title))
+            setCancelable(false)
             setButton(
                 DialogInterface.BUTTON_POSITIVE,
                 context.resources.getString(R.string.dialog_positive)
             ) { _, _ ->
                 mListener?.onColorConfirm(this@ColorPickerDialog, color)
+                mAlertDialog.dismiss()
             }
         }
         mAlertDialog.setButton(
@@ -129,6 +128,7 @@ class ColorPickerDialog(
             context.resources.getString(R.string.dialog_negative)
         ) { _, _ ->
             mListener?.onColorCancel(this@ColorPickerDialog)
+            mAlertDialog.dismiss()
         }
         mAlertDialog.setView(view, 0, 0, 0, 0)
     }
@@ -155,15 +155,14 @@ class ColorPickerDialog(
     /**
      * 移动色彩样板指针
      */
-    private fun moveHueCursor() { //ConstraintLayout$LayoutParams
+    private fun moveHueCursor() {
         var y = mViewHue.measuredHeight - colorHue * mViewHue.measuredHeight / 360f
         if (y == mViewHue.measuredHeight.toFloat()) y = 0f
-        val layoutParams: RelativeLayout.LayoutParams =
-            mHueCursor.layoutParams as RelativeLayout.LayoutParams
+        val layoutParams = mHueCursor.layoutParams as RelativeLayout.LayoutParams
         layoutParams.leftMargin =
-            (mViewHue.left - Math.floor((mHueCursor.measuredWidth / 3).toDouble()) - mViewContainer.paddingLeft).toInt()
+            (mViewHue.left - floor((mHueCursor.measuredWidth / 3).toDouble()) - mViewContainer.paddingLeft).toInt()
         layoutParams.topMargin =
-            (mViewHue.top + y - Math.floor((mHueCursor.measuredHeight / 2).toDouble()) - mViewContainer.paddingTop).toInt()
+            (mViewHue.top + y - floor((mHueCursor.measuredHeight / 2).toDouble()) - mViewContainer.paddingTop).toInt()
         mHueCursor.layoutParams = layoutParams
     }
 
@@ -188,12 +187,12 @@ class ColorPickerDialog(
         val x = colorSat * mViewPlate.measuredWidth
         val y = (1f - colorVal) * mViewPlate.measuredHeight
         val layoutParams: RelativeLayout.LayoutParams =
-            mPalteCursor.layoutParams as RelativeLayout.LayoutParams
+            mPlateCursor.layoutParams as RelativeLayout.LayoutParams
         layoutParams.leftMargin =
-            (mViewPlate.left + x - Math.floor((mPalteCursor.measuredWidth / 2).toDouble()) - mViewContainer.paddingLeft).toInt()
+            (mViewPlate.left + x - floor((mPlateCursor.measuredWidth / 2).toDouble()) - mViewContainer.paddingLeft).toInt()
         layoutParams.topMargin =
-            (mViewPlate.top + y - Math.floor((mPalteCursor.measuredHeight / 2).toDouble()) - mViewContainer.paddingTop).toInt()
-        mPalteCursor.layoutParams = layoutParams
+            (mViewPlate.top + y - floor((mPlateCursor.measuredHeight / 2).toDouble()) - mViewContainer.paddingTop).toInt()
+        mPlateCursor.layoutParams = layoutParams
     }
 
     /**
@@ -273,35 +272,32 @@ class ColorPickerDialog(
      * @param listener       取色器的监听器
      */
     init {
-        var mColor = defaultColor
-        mIsSupportAlpha = isSupportAlpha
-        mListener = listener
-        if (!isSupportAlpha) {
-            mColor = mColor or -0x1000000
+        if (!mIsSupportAlpha) {
+            defaultColor = defaultColor or -0x1000000
         }
-        Color.colorToHSV(mColor, mCurrentHSV)
-        alpha = Color.alpha(mColor)
+        Color.colorToHSV(defaultColor, mCurrentHSV)
+        alpha = Color.alpha(defaultColor)
         val view: View = LayoutInflater.from(context).inflate(R.layout.color_picker_dialog, null)
         mViewHue = view.findViewById(R.id.img_hue)
         mViewPlate = view.findViewById<View>(R.id.color_plate) as ColorPlateView
         mHueCursor = view.findViewById<View>(R.id.hue_cursor) as ImageView
         mViewOldColor = view.findViewById(R.id.view_old_color)
         mViewNewColor = view.findViewById(R.id.view_new_color)
-        mPalteCursor = view.findViewById<View>(R.id.plate_cursor) as ImageView
+        mPlateCursor = view.findViewById<View>(R.id.plate_cursor) as ImageView
         mViewContainer = view.findViewById<View>(R.id.container) as ViewGroup
         mViewAlphaOverlay = view.findViewById(R.id.view_overlay)
         mAlphaCursor = view.findViewById<View>(R.id.alpha_Cursor) as ImageView
         mViewAlphaBottom = view.findViewById<View>(R.id.img_alpha_bottom) as ImageView
 
-            mViewAlphaBottom.visibility =
-                if (mIsSupportAlpha) View.VISIBLE else View.GONE
-            mViewAlphaOverlay.visibility =
-                if (mIsSupportAlpha) View.VISIBLE else View.GONE
-            mAlphaCursor.visibility = if (mIsSupportAlpha) View.VISIBLE else View.GONE
+        mViewAlphaBottom.visibility =
+            if (mIsSupportAlpha) View.VISIBLE else View.GONE
+        mViewAlphaOverlay.visibility =
+            if (mIsSupportAlpha) View.VISIBLE else View.GONE
+        mAlphaCursor.visibility = if (mIsSupportAlpha) View.VISIBLE else View.GONE
 
         mViewPlate.setHue(colorHue)
-        mViewOldColor.setBackgroundColor(mColor)
-        mViewNewColor.setBackgroundColor(mColor)
+        mViewOldColor.setBackgroundColor(defaultColor)
+        mViewNewColor.setBackgroundColor(defaultColor)
         initOnTouchListener()
         initAlertDialog(context, view)
         initGlobalLayoutListener(view)
