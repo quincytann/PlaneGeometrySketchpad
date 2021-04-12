@@ -23,6 +23,7 @@ class MenuView @JvmOverloads constructor(
         val view = LayoutInflater.from(MyApplication.context).inflate(R.layout.menu_view_layout, this, true)
         mItemsView.apply {
             add(view.findViewById(R.id.item_pen))
+            add(view.findViewById(R.id.item_color))
             add(view.findViewById(R.id.item_clear))
             add(view.findViewById(R.id.item_eraser))
             add(view.findViewById(R.id.item_revoke))
@@ -71,23 +72,24 @@ class MenuView @JvmOverloads constructor(
     }
 
     private fun useIndependentBackground(id: Int): Boolean {
-        return id == CLEAR || id == REVOKE || id == UNDO || id == SAVE || id == SHARE
+        return id == CLEAR || id == REVOKE || id == UNDO || id == SAVE || id == SHARE || id == COLOR
     }
 
     companion object {
         const val TAG = "MenuView"
 
         const val PEN = 0
-        const val CLEAR = 1
-        const val ERASER = 2
-        const val REVOKE = 3
-        const val UNDO = 4
-        const val SEGMENT = 5
-        const val TRIANGLE = 6
-        const val RECTANGULAR = 7
-        const val CIRCLE = 8
-        const val SAVE = 9
-        const val SHARE = 10
+        const val COLOR = 1
+        const val CLEAR = 2
+        const val ERASER = 3
+        const val REVOKE = 4
+        const val UNDO = 5
+        const val SEGMENT = 6
+        const val TRIANGLE = 7
+        const val RECTANGULAR = 8
+        const val CIRCLE = 9
+        const val SAVE = 10
+        const val SHARE = 11
     }
 
 }

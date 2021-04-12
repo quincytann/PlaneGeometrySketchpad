@@ -29,6 +29,28 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/item_color"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            app:layout_constraintLeft_toRightOf="@id/item_pen"
+            app:layout_constraintTop_toTopOf="parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/menu_items_temp_selected_bg">
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/color"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/black"
+                android:text="@string/menu_items_color"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/item_clear"
             android:layout_width="60dp"
             android:layout_height="60dp"

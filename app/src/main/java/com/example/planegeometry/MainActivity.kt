@@ -86,6 +86,9 @@ class MainActivity : AppCompatActivity() {
                 startHideMenuBar()
             }
             add {
+
+            }
+            add {
                 board_view.apply {
                     clearDraw()
                 }
