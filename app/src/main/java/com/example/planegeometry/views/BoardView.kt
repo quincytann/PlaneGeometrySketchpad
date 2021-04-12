@@ -81,6 +81,10 @@ class BoardView @JvmOverloads constructor(
         clickTimes = 0
     }
 
+    fun setPaintColor(color: Int) {
+        paint.color = color
+    }
+
     fun clearDraw() {
         path.reset()
         mPaintedList.clear()

@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.GravityCompat
+import com.example.planegeometry.colorpicker.ColorPickerDialog
+import com.example.planegeometry.colorpicker.OnColorPickerListener
 import com.example.planegeometry.utils.FileUtil
 import com.example.planegeometry.utils.ProxyClickListener
 import com.example.planegeometry.views.MenuView.Companion.CIRCLE
@@ -19,7 +21,6 @@ import com.example.planegeometry.views.MenuView.Companion.RECTANGULAR
 import com.example.planegeometry.views.MenuView.Companion.SEGMENT
 import com.example.planegeometry.views.MenuView.Companion.TRIANGLE
 import kotlinx.android.synthetic.main.draw_layout.*
-import java.lang.Exception
 
 
 class MainActivity : AppCompatActivity() {
@@ -86,7 +87,7 @@ class MainActivity : AppCompatActivity() {
                 startHideMenuBar()
             }
             add {
-
+                showColorPicker()
             }
             add {
                 board_view.apply {
@@ -161,6 +162,25 @@ class MainActivity : AppCompatActivity() {
             }
         }
         menu_page.setClickItemCallBack(clickListener)
+    }
+
+    private fun showColorPicker() {
+        val mColorPickerDialog = ColorPickerDialog(
+            this@MainActivity,
+            resources.getColor(R.color.black),
+            true,
+            object : OnColorPickerListener {
+                override fun onColorCancel(dialog: ColorPickerDialog?) {
+
+                }
+                override fun onColorChange(dialog: ColorPickerDialog?, color: Int) {
+
+                }
+                override fun onColorConfirm(dialog: ColorPickerDialog?, color: Int) {
+                    board_view.setPaintColor(color)
+                }
+            }
+        ).show()
     }
 
     private fun showShare() {

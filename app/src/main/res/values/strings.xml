@@ -4,7 +4,7 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
 
     <string name="menu_items_pen">笔</string>
-    <string name="menu_items_color">取色</string>
+    <string name="menu_items_color">取色器</string>
     <string name="menu_items_clear">清屏</string>
     <string name="menu_items_eraser">橡皮擦</string>
     <string name="menu_items_segment">线段</string>
@@ -21,5 +21,9 @@
     <string name="toast_save_success">保存成功</string>
     <string name="toast_save_fail">保存失败</string>
     <string name="toast_no_file_read_and_write_permission">无文件读写权限</string>
+
+    <string name="dialog_title">请选择颜色</string>
+    <string name="dialog_positive">确认</string>
+    <string name="dialog_negative">取消</string>
 
 </resources>
