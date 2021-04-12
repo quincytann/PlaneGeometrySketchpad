@@ -12,30 +12,10 @@
         android:id="@+id/img_hue"
         android:layout_width="@dimen/hue_alpha_width"
         android:layout_height="@dimen/hsv_height"
-        android:layout_marginRight="@dimen/space"
-        android:layout_toLeftOf="@+id/color_plate"
+        android:layout_marginLeft="@dimen/space"
+        android:layout_toRightOf="@+id/color_plate"
         android:scaleType="fitXY"
         android:src="@drawable/hue_list"
-
-        />
-
-    <ImageView
-        android:id="@+id/img_alpha_bottom"
-        android:layout_width="@dimen/hue_alpha_width"
-        android:layout_height="@dimen/hsv_height"
-        android:layout_marginLeft="@dimen/space"
-        android:layout_toRightOf="@+id/color_plate"
-        android:scaleType="fitXY"
-        android:src="@drawable/alpha_bottom_drawable"
-        />
-
-
-    <View
-        android:id="@+id/view_overlay"
-        android:layout_width="@dimen/hue_alpha_width"
-        android:layout_height="@dimen/hsv_height"
-        android:layout_marginLeft="@dimen/space"
-        android:layout_toRightOf="@+id/color_plate"
         />
 
     <RelativeLayout
@@ -91,13 +71,6 @@
 
     <ImageView
         android:id="@+id/hue_cursor"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
-        android:scaleType="matrix"
-        android:src="@drawable/cursor"/>
-
-    <ImageView
-        android:id="@+id/alpha_Cursor"
         android:layout_width="15dp"
         android:layout_height="15dp"
         android:scaleType="matrix"

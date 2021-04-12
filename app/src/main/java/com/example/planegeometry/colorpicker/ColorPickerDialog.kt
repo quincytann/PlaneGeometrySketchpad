@@ -6,36 +6,27 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.view.*
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import com.example.planegeometry.R
 import kotlin.math.floor
-import kotlin.math.roundToInt
 
 class ColorPickerDialog(
     context: Context,
     private var defaultColor: Int,
-    private val mIsSupportAlpha: Boolean,
     private val mListener: OnColorPickerListener?
 ) {
     private lateinit var mAlertDialog: AlertDialog
     private val mViewContainer: ViewGroup
     private val mViewPlate: ColorPlateView
     private val mViewHue: View
-    private val mViewAlphaBottom: ImageView
-    private val mViewAlphaOverlay: View
     private val mPlateCursor: ImageView
     private val mHueCursor: ImageView
-    private val mAlphaCursor: ImageView
     private val mViewOldColor: View
     private val mViewNewColor: View
     private val mCurrentHSV = FloatArray(3)
-    private var alpha: Int
-
 
     /**
      * 触摸监听
@@ -55,27 +46,6 @@ class ColorPickerDialog(
                     mViewPlate.setHue(colorHue)
                     moveHueCursor()
                     this@ColorPickerDialog.colorHue = colorHue
-                    mViewNewColor.setBackgroundColor(color)
-                    mListener?.onColorChange(this@ColorPickerDialog, color)
-                    updateAlphaView()
-                    return true
-                }
-                return false
-            }
-        })
-
-
-        // 支持透明度时的触摸监听
-        if (mIsSupportAlpha) mViewAlphaBottom.setOnTouchListener(object : View.OnTouchListener {
-            override fun onTouch(v: View, event: MotionEvent): Boolean {
-                val action: Int = event.action
-                if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE || action == MotionEvent.ACTION_UP) {
-                    var y: Float = event.y
-                    if (y < 0f) y = 0f
-                    if (y > mViewHue.measuredHeight) y = mViewHue.measuredHeight - 0.001f
-                    val alpha = (255f - 255f / mViewAlphaBottom.measuredHeight * y).roundToInt()
-                    this@ColorPickerDialog.alpha = alpha
-                    moveAlphaCursor()
                     mViewNewColor.setBackgroundColor(color)
                     mListener?.onColorChange(this@ColorPickerDialog, color)
                     return true
@@ -143,10 +113,6 @@ class ColorPickerDialog(
             override fun onGlobalLayout() {
                 moveHueCursor()
                 movePlateCursor()
-                if (mIsSupportAlpha) {
-                    moveAlphaCursor()
-                    updateAlphaView()
-                }
                 view.viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
         })
@@ -164,20 +130,6 @@ class ColorPickerDialog(
         layoutParams.topMargin =
             (mViewHue.top + y - floor((mHueCursor.measuredHeight / 2).toDouble()) - mViewContainer.paddingTop).toInt()
         mHueCursor.layoutParams = layoutParams
-    }
-
-    /**
-     * 移动透明度板的指针
-     */
-    private fun moveAlphaCursor() {
-        val y = mViewAlphaBottom.measuredHeight - alpha * mViewAlphaBottom.measuredHeight / 255f
-        val layoutParams: RelativeLayout.LayoutParams =
-            mAlphaCursor.layoutParams as RelativeLayout.LayoutParams
-        layoutParams.leftMargin =
-            (mViewAlphaBottom.left - floor((mAlphaCursor.measuredWidth / 3).toDouble()) - mViewContainer.paddingLeft).toInt()
-        layoutParams.topMargin =
-            (mViewAlphaBottom.top + y - floor((mAlphaCursor.measuredHeight / 2).toDouble()) - mViewContainer.paddingTop).toInt()
-        mAlphaCursor.layoutParams = layoutParams
     }
 
     /**
@@ -229,35 +181,14 @@ class ColorPickerDialog(
      */
     private val color: Int
         get() {
-            val argb = Color.HSVToColor(mCurrentHSV)
-            return alpha shl 24 or (argb and 0x00ffffff)
+            return Color.HSVToColor(mCurrentHSV)
         }
-
-    /**
-     * 更新透明度UI
-     */
-    private fun updateAlphaView() {
-        val gd = GradientDrawable(
-            GradientDrawable.Orientation.TOP_BOTTOM,
-            intArrayOf(Color.HSVToColor(mCurrentHSV), 0x0)
-        )
-        mViewAlphaOverlay.setBackgroundDrawable(gd)
-    }
-
-    fun setButtonTextColor(color: Int) {
-        val btnPositive: Button = mAlertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
-        val btnNegative: Button = mAlertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-        btnPositive.setTextColor(color)
-        btnNegative.setTextColor(color)
-    }
 
     fun show(): ColorPickerDialog {
         mAlertDialog.show()
         return this@ColorPickerDialog
     }
 
-    val dialog: AlertDialog?
-        get() = mAlertDialog
 
     companion object {
         private val TAG = ColorPickerDialog::class.java.name
@@ -268,15 +199,10 @@ class ColorPickerDialog(
      *
      * @param context        宿主Activity
      * @param defauleColor   默认的颜色
-     * @param isSupportAlpha 颜色是否支持透明度
      * @param listener       取色器的监听器
      */
     init {
-        if (!mIsSupportAlpha) {
-            defaultColor = defaultColor or -0x1000000
-        }
         Color.colorToHSV(defaultColor, mCurrentHSV)
-        alpha = Color.alpha(defaultColor)
         val view: View = LayoutInflater.from(context).inflate(R.layout.color_picker_dialog, null)
         mViewHue = view.findViewById(R.id.img_hue)
         mViewPlate = view.findViewById<View>(R.id.color_plate) as ColorPlateView
@@ -285,15 +211,6 @@ class ColorPickerDialog(
         mViewNewColor = view.findViewById(R.id.view_new_color)
         mPlateCursor = view.findViewById<View>(R.id.plate_cursor) as ImageView
         mViewContainer = view.findViewById<View>(R.id.container) as ViewGroup
-        mViewAlphaOverlay = view.findViewById(R.id.view_overlay)
-        mAlphaCursor = view.findViewById<View>(R.id.alpha_Cursor) as ImageView
-        mViewAlphaBottom = view.findViewById<View>(R.id.img_alpha_bottom) as ImageView
-
-        mViewAlphaBottom.visibility =
-            if (mIsSupportAlpha) View.VISIBLE else View.GONE
-        mViewAlphaOverlay.visibility =
-            if (mIsSupportAlpha) View.VISIBLE else View.GONE
-        mAlphaCursor.visibility = if (mIsSupportAlpha) View.VISIBLE else View.GONE
 
         mViewPlate.setHue(colorHue)
         mViewOldColor.setBackgroundColor(defaultColor)

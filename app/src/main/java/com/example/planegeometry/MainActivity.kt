@@ -168,7 +168,6 @@ class MainActivity : AppCompatActivity() {
         ColorPickerDialog(
             this@MainActivity,
             board_view.getPaintColor(),
-            true,
             object : OnColorPickerListener {
                 override fun onColorCancel(dialog: ColorPickerDialog?) {
 
