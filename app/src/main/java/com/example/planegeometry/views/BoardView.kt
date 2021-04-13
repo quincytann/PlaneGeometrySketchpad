@@ -5,12 +5,10 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import android.widget.Toast
 import com.example.planegeometry.utils.CLog
 import com.example.planegeometry.utils.DimenUtils
 import com.example.planegeometry.views.BoardView.Companion.TYPE_LINE
 import com.example.planegeometry.views.MenuView.Companion.CIRCLE
-import com.example.planegeometry.views.MenuView.Companion.CLEAR
 import com.example.planegeometry.views.MenuView.Companion.ERASER
 import com.example.planegeometry.views.MenuView.Companion.PEN
 import com.example.planegeometry.views.MenuView.Companion.RECTANGULAR
@@ -18,16 +16,16 @@ import com.example.planegeometry.views.MenuView.Companion.SEGMENT
 import com.example.planegeometry.views.MenuView.Companion.TRIANGLE
 import kotlin.math.sqrt
 
+
 class BoardView @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
     // 路径
     private var path: Path = Path()
-    private var prePath: Path = Path()
 
     // 画笔
-    private var paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.DITHER_FLAG)
+    private var paint: Paint = Paint()
     private var drawPaint: Paint
     private var eraserPaint: Paint
     private var textPaint: Paint
@@ -53,6 +51,7 @@ class BoardView @JvmOverloads constructor(
             strokeCap = Paint.Cap.ROUND
             strokeWidth = DimenUtils.dp2px(3f)
             isAntiAlias = true //开启抗锯齿
+            isFilterBitmap = true
             isDither = true //开启防抖
         }
 
@@ -123,7 +122,9 @@ class BoardView @JvmOverloads constructor(
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         if (!this::bitmap.isInitialized) {
             bitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.ARGB_8888)
-            canvas = Canvas(bitmap)
+            canvas = Canvas(bitmap).apply {
+                drawFilter = PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+            }
         }
     }
 
@@ -284,7 +285,14 @@ class BoardView @JvmOverloads constructor(
             drawPoint(x, y, paint)
             drawText(getPointText(), x, y, textPaint)
         }
-        mPaintedList.add(PaintData(Paint(textPaint), null, PointData(x, y, getPointText()), TYPE_POINT))
+        mPaintedList.add(
+            PaintData(
+                Paint(textPaint),
+                null,
+                PointData(x, y, getPointText()),
+                TYPE_POINT
+            )
+        )
         pointCount++
     }
 
@@ -319,10 +327,10 @@ class BoardView @JvmOverloads constructor(
 
 
 data class PaintData(
-        val mPaint: Paint,
-        val mPath: Path? = null,
-        val mPointText: PointData? = null,
-        val mType: Int = TYPE_LINE
+    val mPaint: Paint,
+    val mPath: Path? = null,
+    val mPointText: PointData? = null,
+    val mType: Int = TYPE_LINE
 ) {
 
     fun drawPath(canvas: Canvas) {

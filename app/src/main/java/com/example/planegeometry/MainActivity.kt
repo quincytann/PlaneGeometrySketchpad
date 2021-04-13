@@ -54,8 +54,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        //CLog.d(TAG, "width: ${ScreenUtil.getScreenWidth()}  height: ${ScreenUtil.getScreenHeight()}")
-
         // 去除侧边栏滑出时底部页面默认阴影
         drawer_layout.setScrimColor(Color.TRANSPARENT)
 

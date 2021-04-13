@@ -15,7 +15,7 @@ import kotlin.math.floor
 
 class ColorPickerDialog(
     context: Context,
-    private var defaultColor: Int,
+    defaultColor: Int,
     private val mListener: OnColorPickerListener?
 ) {
     private lateinit var mAlertDialog: AlertDialog
