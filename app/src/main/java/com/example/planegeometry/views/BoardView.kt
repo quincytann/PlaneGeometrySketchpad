@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import com.example.planegeometry.utils.CLog
-import com.example.planegeometry.utils.DimenUtils
+import com.example.planegeometry.utils.DimenUtil
 import com.example.planegeometry.views.BoardView.Companion.TYPE_LINE
 import com.example.planegeometry.views.MenuView.Companion.CIRCLE
 import com.example.planegeometry.views.MenuView.Companion.ERASER
@@ -49,7 +49,7 @@ class BoardView @JvmOverloads constructor(
             color = Color.BLACK
             style = Paint.Style.STROKE
             strokeCap = Paint.Cap.ROUND
-            strokeWidth = DimenUtils.dp2px(3f)
+            strokeWidth = DimenUtil.dip2px(3f)
             isAntiAlias = true //开启抗锯齿
             isFilterBitmap = true
             isDither = true //开启防抖
@@ -60,14 +60,14 @@ class BoardView @JvmOverloads constructor(
         eraserPaint = Paint(paint)
         eraserPaint.apply {
             xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
-            strokeWidth = DimenUtils.dp2px(8f)
+            strokeWidth = DimenUtil.dip2px(8f)
         }
 
         textPaint = Paint(paint)
         textPaint.apply {
             color = Color.BLUE
             style = Paint.Style.FILL
-            textSize = DimenUtils.sp2px(12f)
+            textSize = DimenUtil.sp2px(12f)
         }
 
         setPaintMode(PEN)
@@ -191,8 +191,8 @@ class BoardView @JvmOverloads constructor(
                                 path.lineTo(x, y)
                                 drawPath()
                                 path.lineTo(preX, preY)
+                                path.close() // 使这些点构成封闭的多边形 
                                 drawPath()
-
                                 clickTimes = 0
                                 path.reset()
                             }

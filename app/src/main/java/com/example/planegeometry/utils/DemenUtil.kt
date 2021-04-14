@@ -1,25 +1,23 @@
 package com.example.planegeometry.utils
 
-import android.content.res.Resources
-import android.util.TypedValue
+object DimenUtil {
 
-object DimenUtils {
-    private val sResource = Resources.getSystem()
-    fun dp2px(dp: Float): Float {
-        val dm = sResource.displayMetrics
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, dm)
+    private val scale: Float = MyApplication.context.resources.displayMetrics.density
+    private val fontScale: Float = MyApplication.context.resources.displayMetrics.scaledDensity
+
+    fun dip2px(dp: Float): Float {
+        return dp * scale + 0.5f
     }
 
-    fun dp2pxInt(dp: Float): Int {
-        return dp2px(dp).toInt()
+    fun px2dip(px: Float): Float {
+        return px / scale + 0.5f
     }
 
-    fun sp2px(sp: Float): Float {
-        val dm = sResource.displayMetrics
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sp, dm)
+    fun sp2px(spValue: Float): Float {
+        return spValue * fontScale + 0.5f
     }
 
-    fun sp2pxInt(sp: Float): Int {
-        return sp2px(sp).toInt()
+    fun px2sp(pxValue: Float): Float {
+        return pxValue / fontScale + 0.5f
     }
 }
