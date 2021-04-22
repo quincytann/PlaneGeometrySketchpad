@@ -7,6 +7,7 @@
     <string name="menu_items_color">取色器</string>
     <string name="menu_items_clear">清屏</string>
     <string name="menu_items_eraser">橡皮擦</string>
+    <string name="menu_items_coordinate">坐标轴</string>
     <string name="menu_items_segment">线段</string>
     <string name="menu_items_triangle">三角形</string>
     <string name="menu_items_rectangular">矩形</string>

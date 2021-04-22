@@ -12,6 +12,10 @@ import androidx.core.content.FileProvider
 import androidx.core.view.GravityCompat
 import com.example.planegeometry.colorpicker.ColorPickerDialog
 import com.example.planegeometry.colorpicker.OnColorPickerListener
+import com.example.planegeometry.coordinateaxischart.FunctionLine
+import com.example.planegeometry.coordinateaxischart.type.CircularType
+import com.example.planegeometry.coordinateaxischart.type.LinearType
+import com.example.planegeometry.coordinateaxischart.type.PowerType
 import com.example.planegeometry.utils.FileUtil
 import com.example.planegeometry.utils.ProxyClickListener
 import com.example.planegeometry.views.MenuView.Companion.CIRCLE
@@ -119,6 +123,27 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             add {
+                board_view.drawAxis()
+                startHideMenuBar()
+//                // test
+//                Thread {
+//                    Thread.sleep(2000)
+//                    val line: FunctionLine<PowerType>
+//                    = FunctionLine(PowerType(1f,0f,2f), Color.parseColor("#e53935"))
+//                    board_view.addFunctionLine(line)
+//
+//                    Thread.sleep(2000)
+//                    val line2: FunctionLine<LinearType>
+//                            = FunctionLine(LinearType(2f, 1f), Color.parseColor("#43A047"))
+//                    board_view.addFunctionLine(line2)
+//
+//                    Thread.sleep(2000)
+//                    val line3: FunctionLine<CircularType>
+//                            = FunctionLine(CircularType(1f, 0f, 1f, 0f, CircularType.Circular.SIN), Color.parseColor("#FFCA28"))
+//                    board_view.addFunctionLine(line3)
+//                }.start()
+            }
+            add {
                 board_view.setPaintMode(SEGMENT)
                 startHideMenuBar()
             }
@@ -170,9 +195,11 @@ class MainActivity : AppCompatActivity() {
                 override fun onColorCancel(dialog: ColorPickerDialog?) {
 
                 }
+
                 override fun onColorChange(dialog: ColorPickerDialog?, color: Int) {
 
                 }
+
                 override fun onColorConfirm(dialog: ColorPickerDialog?, color: Int) {
                     board_view.setPaintColor(color)
                 }

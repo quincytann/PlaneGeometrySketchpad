@@ -34,12 +34,21 @@
             android:src="@drawable/ic_menu"
             />
 
-        <com.example.planegeometry.views.BoardView
-            android:id="@+id/board_view"
+        <FrameLayout
+            android:id="@+id/content_view"
             app:layout_constraintTop_toBottomOf="@id/toolbar"
+            android:layout_marginTop="?attr/actionBarSize"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/boardview_bg"/>
+            android:layout_height="match_parent">
+
+            <com.example.planegeometry.views.BoardView
+                android:id="@+id/board_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/boardview_bg"/>
+
+        </FrameLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

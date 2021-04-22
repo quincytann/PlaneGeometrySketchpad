@@ -1,14 +1,9 @@
 package com.example.planegeometry.utils
 
-import android.content.ContentValues
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Build
 import android.os.Environment
-import android.provider.MediaStore
-import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
 
@@ -16,9 +11,14 @@ import java.io.FileOutputStream
 object FileUtil {
 
     fun saveImg(bm: Bitmap): Boolean {
+        val storePath = Environment.getExternalStorageDirectory().absolutePath + File.separator + "PlaneGeometry"
+        val appDir = File(storePath)
+        if (!appDir.exists()) {
+            appDir.mkdir()
+        }
         val file = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-            "IMG-" + System.currentTimeMillis() + ".jpg"
+            appDir,
+            System.currentTimeMillis().toString() + ".jpg"
         )
         if (file.exists()) {
             file.delete()
@@ -42,11 +42,16 @@ object FileUtil {
     }
 
 
-    // 确保有读写权限的前提下保存分享图片
+    // 确保有读写权限的前提下保存并分享图片 但不同步到相册
     fun getShareFile(bm: Bitmap): File {
+        val storePath = Environment.getExternalStorageDirectory().absolutePath + File.separator + "PlaneGeometry"
+        val appDir = File(storePath)
+        if (!appDir.exists()) {
+            appDir.mkdir()
+        }
         val file = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-            "IMG-" + System.currentTimeMillis() + ".jpg"
+            appDir,
+            System.currentTimeMillis().toString() + ".jpg"
         )
         if (file.exists()) {
             file.delete()
