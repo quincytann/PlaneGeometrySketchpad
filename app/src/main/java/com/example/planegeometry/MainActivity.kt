@@ -123,8 +123,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             add {
-                board_view.drawAxis()
-                startHideMenuBar()
+                board_view.drawOrHideAxis()
+                //startHideMenuBar()
 //                // test
 //                Thread {
 //                    Thread.sleep(2000)

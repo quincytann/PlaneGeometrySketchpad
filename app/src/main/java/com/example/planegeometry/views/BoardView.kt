@@ -11,7 +11,7 @@ import com.example.planegeometry.coordinateaxischart.exception.FunctionTypeExcep
 import com.example.planegeometry.coordinateaxischart.type.*
 import com.example.planegeometry.utils.CLog
 import com.example.planegeometry.utils.DimenUtil
-import com.example.planegeometry.views.BoardView.Companion.TYPE_LINE
+import com.example.planegeometry.views.BoardView.Companion.DRAW_TYPE_LINE
 import com.example.planegeometry.views.MenuView.Companion.CIRCLE
 import com.example.planegeometry.views.MenuView.Companion.ERASER
 import com.example.planegeometry.views.MenuView.Companion.PEN
@@ -49,6 +49,7 @@ class BoardView @JvmOverloads constructor(
     private var mRevokedList: MutableList<PaintData> = ArrayList()
 
     // 坐标轴相关
+    private var showAxis = false
     private var width = 0f
     private var height = 0f
     private var axisPaint: Paint = Paint()
@@ -81,6 +82,8 @@ class BoardView @JvmOverloads constructor(
     private var xPointsValues: Array<PointF?>
     private val lines: MutableList<FunctionLine<*>> = ArrayList()
     private val points: MutableList<SinglePoint> = ArrayList()
+
+    private var axisPaintedList: MutableList<PaintData> = ArrayList()
 
     init {
         paint.apply {
@@ -176,13 +179,12 @@ class BoardView @JvmOverloads constructor(
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
                         clickTimes++
-                        drawPointText(x, y)
+                        saveDrawPointWithText(x, y)
                         if (clickTimes == 1) {
                             path.moveTo(x, y)
                         } else {
                             path.lineTo(x, y)
-                            canvas.drawPath(path, paint)
-                            mPaintedList.add(PaintData(Paint(paint), Path(path)))
+                            saveDrawPath(path, paint, mPaintedList)
                             path.reset()
                             clickTimes = 0
                         }
@@ -194,7 +196,7 @@ class BoardView @JvmOverloads constructor(
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
                         clickTimes++
-                        drawPointText(x, y)
+                        saveDrawPointWithText(x, y)
                         when (clickTimes) {
                             1 -> {
                                 path.moveTo(x, y)
@@ -203,14 +205,14 @@ class BoardView @JvmOverloads constructor(
                             }
                             2 -> {
                                 path.lineTo(x, y)
-                                drawPath()
+                                saveDrawPath(path, paint, mPaintedList)
                             }
                             3 -> {
                                 path.lineTo(x, y)
-                                drawPath()
+                                saveDrawPath(path, paint, mPaintedList)
                                 path.lineTo(preX, preY)
                                 path.close() // 使这些点构成封闭的多边形 
-                                drawPath()
+                                saveDrawPath(path, paint, mPaintedList)
                                 clickTimes = 0
                                 path.reset()
                             }
@@ -225,14 +227,14 @@ class BoardView @JvmOverloads constructor(
                     MotionEvent.ACTION_DOWN -> {
                         clickTimes++
                         if (clickTimes == 1) {
-                            drawPointText(x, y)
+                            saveDrawPointWithText(x, y)
                             preX = x
                             preY = y
                         } else if (clickTimes == 2) {
                             drawRectFRemainingPointsText(preX, preY, x, y)
                             val rectF = getRectF(preX, preY, x, y)
                             path.addRect(rectF, Path.Direction.CW)
-                            drawPath()
+                            saveDrawPath(path, paint, mPaintedList)
                             path.reset()
                             clickTimes = 0
                         }
@@ -246,13 +248,13 @@ class BoardView @JvmOverloads constructor(
                     MotionEvent.ACTION_DOWN -> {
                         clickTimes++
                         if (clickTimes == 1) {
-                            drawPointText(x, y)
+                            saveDrawPointWithText(x, y)
                             preX = x
                             preY = y
                         } else if (clickTimes == 2) {
                             val radius = sqrt((x - preX) * (x - preX) + (y - preY) * (y - preY))
                             path.addCircle(preX, preY, radius, Path.Direction.CW)
-                            drawPath()
+                            saveDrawPath(path, paint, mPaintedList)
                             path.reset()
                             clickTimes = 0
                         }
@@ -275,56 +277,69 @@ class BoardView @JvmOverloads constructor(
         if (paintList === mPaintedList) {
             mRevokedList.add(lastPaint)
             // 将一系列关联的点一起带上 否则会显得不美观
-            while (paintList.isNotEmpty() && paintList.last().mType == TYPE_POINT) {
+            while (paintList.isNotEmpty()
+                && (paintList.last().mType == DRAW_TYPE_POINT || paintList.last().mType == DRAW_TYPE_TEXT)
+            ) {
                 mRevokedList.add(paintList.removeLast())
             }
         } else {
             mPaintedList.add(lastPaint)
-//            while (paintList.isNotEmpty() && paintList.last().mType != TYPE_POINT) {
-//                mPaintedList.add(paintList.removeLast())
-//            }
+            while (paintList.isNotEmpty() && paintList.last().mType != DRAW_TYPE_POINT) {
+                mPaintedList.add(paintList.removeLast())
+            }
         }
         canvas.drawColor(0, PorterDuff.Mode.CLEAR)
         for (paintData in mPaintedList) {
-            if (paintData.mType == TYPE_LINE) {
+            if (paintData.mType == DRAW_TYPE_TEXT) {
+                paintData.drawText(canvas)
+            } else {
                 paintData.drawPath(canvas)
-            } else if (paintData.mType == TYPE_POINT) {
-                paintData.drawPointText(canvas)
             }
         }
         invalidate()
     }
 
-    private fun getPointText(): String = "P${pointCount}"
+    private fun getPointText(): String = "P${++pointCount}"
 
-    // 写出点的文本形式并记录
-    private fun drawPointText(x: Float, y: Float) {
-        canvas.apply {
-            drawPoint(x, y, paint)
-            drawText(getPointText(), x, y, textPaint)
-        }
-        mPaintedList.add(
-            PaintData(
-                Paint(textPaint),
-                null,
-                PointData(x, y, getPointText()),
-                TYPE_POINT
-            )
-        )
-        pointCount++
+    // 画出path并记录 path默认是线条
+    private fun saveDrawPath(path: Path, paint: Paint, list: MutableList<PaintData>) {
+        canvas.drawPath(path, paint)
+        list.add(PaintData(Paint(paint), Path(path), null, DRAW_TYPE_LINE))
     }
 
-    // 画出path并记录
-    private fun drawPath() {
+    // 写出点的文本形式并记录(P1 P2...)
+    private fun saveDrawPointWithText(x: Float, y: Float) {
+        val path = Path()
+        path.addCircle(x, y, DEFAULT_POINT_RADIUS.toFloat(), Path.Direction.CW)
+        paint.style = Paint.Style.FILL
+        saveDrawPoint(path, paint, mPaintedList)
+        paint.style = Paint.Style.STROKE
+        saveDrawText(x, y, getPointText(), textPaint, mPaintedList)
+    }
+
+    // 画出point并保存 (Point以Circle的path形式存在)
+    private fun saveDrawPoint(path: Path, paint: Paint, list: MutableList<PaintData>) {
         canvas.drawPath(path, paint)
-        mPaintedList.add(PaintData(Paint(paint), Path(path)))
+        list.add(PaintData(Paint(paint), Path(path), null, DRAW_TYPE_POINT))
+    }
+
+    // 画出text并保存
+    private fun saveDrawText(
+        x: Float,
+        y: Float,
+        text: String,
+        paint: Paint,
+        list: MutableList<PaintData>
+    ) {
+        canvas.drawText(text, x, y, paint)
+        list.add(PaintData(Paint(paint), null, TextData(x, y, text), DRAW_TYPE_TEXT))
     }
 
     // 矩形除了第一个点击的点剩余的三个点
     private fun drawRectFRemainingPointsText(x1: Float, y1: Float, x2: Float, y2: Float) {
-        drawPointText(x1, y2)
-        drawPointText(x2, y1)
-        drawPointText(x2, y2)
+        saveDrawPointWithText(x1, y2)
+        saveDrawPointWithText(x2, y1)
+        saveDrawPointWithText(x2, y2)
     }
 
     // 根据两次点击点的坐标构造矩形
@@ -695,6 +710,105 @@ class BoardView @JvmOverloads constructor(
         return PointF(logicalX, logicalY)
     }
 
+    private fun drawAxis() {
+        val path = Path()
+        path.moveTo(leftPoint.x, leftPoint.y)
+        path.lineTo(rightPoint.x, rightPoint.y)
+        path.moveTo(topPoint.x, topPoint.y)
+        path.lineTo(bottomPoint.x, bottomPoint.y)
+        saveDrawPath(path, axisPaint, axisPaintedList)
+
+        // y轴箭头
+        axisPaint.style = Paint.Style.FILL
+        path.moveTo(topPoint.x, topPoint.y)
+        path.lineTo(topPoint.x - 10, topPoint.y + 20)
+        path.lineTo(topPoint.x + 10, topPoint.y + 20)
+        path.close()
+        // x轴箭头
+        path.moveTo(rightPoint.x, rightPoint.y)
+        path.lineTo(rightPoint.x - 20, rightPoint.y - 10)
+        path.lineTo(rightPoint.x - 20, rightPoint.y + 10)
+        path.close()
+        saveDrawPath(path, axisPaint, axisPaintedList)
+
+        // 坐标点单位长度
+        unitLength = if (width > height) height / 2 / (max + 1) else width / 2 / (max + 1)
+        xMax = (if (width > height) width / unitLength else height / unitLength).toInt()
+        if (xMax >= max) {
+            yMax = max
+        } else {
+            yMax = xMax
+            xMax = max
+        }
+
+        // x-
+        for (i in 0 until xMax) {
+            val x = origin.x - unitLength * (i + 1)
+            val y = origin.y
+            if (x > leftPoint.x) {
+                path.moveTo(x, y)
+                path.close()
+                path.addCircle(x, y, axisPointRadius.toFloat(), Path.Direction.CW)
+                val curText: String = (-(i + 1)).toString()
+                saveDrawText(x, y + coordinateTextSize, curText, axisPaint, axisPaintedList)
+            }
+        }
+        // x+
+        for (i in 0 until xMax) {
+            val x = origin.x + unitLength * (i + 1)
+            val y = origin.y
+            if (x < rightPoint.x) {
+                path.moveTo(x, y)
+                path.close()
+                path.addCircle(x, y, axisPointRadius.toFloat(), Path.Direction.CW)
+                val curText: String = (i + 1).toString()
+                saveDrawText(x, y + coordinateTextSize, curText, axisPaint, axisPaintedList)
+            }
+        }
+        // y+
+        for (i in 0 until yMax) {
+            val x = origin.x
+            val y = origin.y - unitLength * (i + 1)
+            if (y > topPoint.y) {
+                path.moveTo(x, y)
+                path.close()
+                path.addCircle(x, y, axisPointRadius.toFloat(), Path.Direction.CW)
+                val curText: String = (i + 1).toString()
+                saveDrawText(x - coordinateTextSize, y, curText, axisPaint, axisPaintedList)
+            }
+        }
+        // y-
+        for (i in 0 until yMax) {
+            val x = origin.x
+            val y = origin.y + unitLength * (i + 1)
+            if (y < bottomPoint.y) {
+                path.moveTo(x, y)
+                path.close()
+                path.addCircle(x, y, axisPointRadius.toFloat(), Path.Direction.CW)
+                val curText: String = (-(i + 1)).toString()
+                saveDrawText(x - coordinateTextSize * 1.2f, y, curText, axisPaint, axisPaintedList)
+            }
+        }
+        saveDrawPoint(path, axisPaint, axisPaintedList)
+        axisPaint.style = Paint.Style.STROKE
+        showAxis = true
+        axisPaintedList.clear() // 暂时用不上，保持save方法使用规范就先add再clear
+        invalidate()
+    }
+
+    private fun clearAxis() {
+        canvas.drawColor(0, PorterDuff.Mode.CLEAR)
+        for (paintData in mPaintedList) {
+            if (paintData.mType == DRAW_TYPE_TEXT) {
+                paintData.drawText(canvas)
+            } else {
+                paintData.drawPath(canvas)
+            }
+        }
+        showAxis = false
+        invalidate()
+    }
+
     fun addFunctionLine(line: FunctionLine<*>) {
         //lines.add(line)
         linearType = line.functionType
@@ -776,6 +890,7 @@ class BoardView @JvmOverloads constructor(
         canvas.drawColor(0, PorterDuff.Mode.CLEAR)
         clickTimes = 0
         pointCount = 0
+        clearAxis()
         invalidate()
     }
 
@@ -798,92 +913,17 @@ class BoardView @JvmOverloads constructor(
         return result
     }
 
-    fun drawAxis() {
-        // x轴 y轴
-        canvas.drawLine(leftPoint.x, leftPoint.y, rightPoint.x, rightPoint.y, axisPaint)
-        canvas.drawLine(topPoint.x, topPoint.y, bottomPoint.x, bottomPoint.y, axisPaint)
-
-        // y轴箭头
-        val path = Path()
-        path.moveTo(topPoint.x, topPoint.y)
-        path.lineTo(topPoint.x - 10, topPoint.y + 20)
-        path.lineTo(topPoint.x + 10, topPoint.y + 20)
-        path.close()
-        axisPaint.style = Paint.Style.FILL
-        canvas.drawPath(path, axisPaint)
-        // x轴箭头
-        path.moveTo(rightPoint.x, rightPoint.y)
-        path.lineTo(rightPoint.x - 20, rightPoint.y - 10)
-        path.lineTo(rightPoint.x - 20, rightPoint.y + 10)
-        path.close()
-        canvas.drawPath(path, axisPaint)
-
-        // 坐标点
-        unitLength = if (width > height) height / 2 / (max + 1) else width / 2 / (max + 1)
-        xMax = (if (width > height) width / unitLength else height / unitLength).toInt()
-        if (xMax >= max) {
-            yMax = max
-        } else {
-            yMax = xMax
-            xMax = max
-        }
-
-        // x-
-        for (i in 0 until xMax) {
-            val x = origin.x - unitLength * (i + 1)
-            val y = origin.y
-            if (x > leftPoint.x) {
-                path.moveTo(x, y)
-                path.close()
-                canvas.drawCircle(x, y, axisPointRadius.toFloat(), axisPaint)
-                val curText: String = (-(i + 1)).toString()
-                canvas.drawText(curText, x, y + coordinateTextSize, axisPaint)
-            }
-        }
-        // x+
-        for (i in 0 until xMax) {
-            val x = origin.x + unitLength * (i + 1)
-            val y = origin.y
-            if (x < rightPoint.x) {
-                path.moveTo(x, y)
-                path.close()
-                canvas.drawCircle(x, y, axisPointRadius.toFloat(), axisPaint)
-                val coorText = (i + 1).toString()
-                canvas.drawText(coorText, x, y + coordinateTextSize, axisPaint)
-            }
-        }
-        // y+
-        for (i in 0 until yMax) {
-            val x = origin.x
-            val y = origin.y - unitLength * (i + 1)
-            if (y > topPoint.y) {
-                path.moveTo(x, y)
-                path.close()
-                canvas.drawCircle(x, y, axisPointRadius.toFloat(), axisPaint)
-                val coorText = (i + 1).toString()
-                canvas.drawText(coorText, x - coordinateTextSize, y, axisPaint)
-            }
-        }
-        // y-
-        for (i in 0 until yMax) {
-            val x = origin.x
-            val y = origin.y + unitLength * (i + 1)
-            if (y < bottomPoint.y) {
-                path.moveTo(x, y)
-                path.close()
-                canvas.drawCircle(x, y, axisPointRadius.toFloat(), axisPaint)
-                val coorText: String = (-(i + 1)).toString()
-                canvas.drawText(coorText, x - coordinateTextSize * 1.2f, y, axisPaint)
-            }
-        }
-        axisPaint.style = Paint.Style.STROKE
-        invalidate()
+    fun drawOrHideAxis() {
+        showAxis = !showAxis
+        if (showAxis) drawAxis() else clearAxis()
     }
 
     companion object {
         const val TAG = "BoardView"
-        const val TYPE_POINT = 1
-        const val TYPE_LINE = 2
+        const val DRAW_TYPE_POINT = 1
+        const val DRAW_TYPE_LINE = 2
+        const val DRAW_TYPE_TEXT = 3
+        private const val DEFAULT_POINT_RADIUS = 7
         private const val PI = Math.PI.toFloat()
         private const val DEFAULT_AXIS_WIDTH = 2
         private const val DEFAULT_FUNCTION_LINE_WIDTH = 3
@@ -902,17 +942,17 @@ class BoardView @JvmOverloads constructor(
 data class PaintData(
     val mPaint: Paint,
     val mPath: Path? = null,
-    val mPointText: PointData? = null,
-    val mType: Int = TYPE_LINE
+    val mText: TextData? = null,
+    val mType: Int = DRAW_TYPE_LINE
 ) {
 
     fun drawPath(canvas: Canvas) {
         canvas.drawPath(mPath!!, mPaint)
     }
 
-    fun drawPointText(canvas: Canvas) {
-        canvas.drawText(mPointText!!.text, mPointText.x, mPointText.y, mPaint)
+    fun drawText(canvas: Canvas) {
+        canvas.drawText(mText!!.text, mText.x, mText.y, mPaint)
     }
 }
 
-data class PointData(val x: Float, val y: Float, val text: String)
+data class TextData(val x: Float, val y: Float, val text: String)
