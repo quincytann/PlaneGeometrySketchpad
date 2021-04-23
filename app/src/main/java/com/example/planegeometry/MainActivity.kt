@@ -124,24 +124,23 @@ class MainActivity : AppCompatActivity() {
             }
             add {
                 board_view.drawOrHideAxis()
-                //startHideMenuBar()
-//                // test
-//                Thread {
-//                    Thread.sleep(2000)
-//                    val line: FunctionLine<PowerType>
-//                    = FunctionLine(PowerType(1f,0f,2f), Color.parseColor("#e53935"))
-//                    board_view.addFunctionLine(line)
-//
-//                    Thread.sleep(2000)
-//                    val line2: FunctionLine<LinearType>
-//                            = FunctionLine(LinearType(2f, 1f), Color.parseColor("#43A047"))
-//                    board_view.addFunctionLine(line2)
-//
-//                    Thread.sleep(2000)
-//                    val line3: FunctionLine<CircularType>
-//                            = FunctionLine(CircularType(1f, 0f, 1f, 0f, CircularType.Circular.SIN), Color.parseColor("#FFCA28"))
-//                    board_view.addFunctionLine(line3)
-//                }.start()
+                // test
+                Thread {
+                    Thread.sleep(2000)
+                    val line: FunctionLine<PowerType>
+                    = FunctionLine(PowerType(1f,0f,2f), Color.parseColor("#e53935"))
+                    board_view.addFunctionLine(line)
+
+                    Thread.sleep(2000)
+                    val line2: FunctionLine<LinearType>
+                            = FunctionLine(LinearType(2f, 1f), Color.parseColor("#43A047"))
+                    board_view.addFunctionLine(line2)
+
+                    Thread.sleep(2000)
+                    val line3: FunctionLine<CircularType>
+                            = FunctionLine(CircularType(1f, 0f, 1f, 0f, CircularType.Circular.SIN), Color.parseColor("#FFCA28"))
+                    board_view.addFunctionLine(line3)
+                }.start()
             }
             add {
                 board_view.setPaintMode(SEGMENT)

@@ -277,14 +277,12 @@ class BoardView @JvmOverloads constructor(
         if (paintList === mPaintedList) {
             mRevokedList.add(lastPaint)
             // 将一系列关联的点一起带上 否则会显得不美观
-            while (paintList.isNotEmpty()
-                && (paintList.last().mType == DRAW_TYPE_POINT || paintList.last().mType == DRAW_TYPE_TEXT)
-            ) {
+            while (paintList.isNotEmpty() && paintList.last().mType != DRAW_TYPE_LINE) {
                 mRevokedList.add(paintList.removeLast())
             }
         } else {
             mPaintedList.add(lastPaint)
-            while (paintList.isNotEmpty() && paintList.last().mType != DRAW_TYPE_POINT) {
+            while (paintList.isNotEmpty() && paintList.last().mType != DRAW_TYPE_LINE) {
                 mPaintedList.add(paintList.removeLast())
             }
         }
@@ -370,7 +368,10 @@ class BoardView @JvmOverloads constructor(
         }
         val radius =
             if (point.pointRadius == null) DEFAULT_SINGLE_POINT_RADIUS else point.pointRadius!!
-        canvas.drawCircle(pointRaw.x, pointRaw.y, radius.toFloat(), pointPaint)
+
+        val path = Path()
+        path.addCircle(pointRaw.x, pointRaw.y, radius.toFloat(), Path.Direction.CW)
+        saveDrawPoint(path, pointPaint, mPaintedList)
     }
 
     private fun drawFuncLine() {
@@ -384,7 +385,7 @@ class BoardView @JvmOverloads constructor(
                 }
                 "ExpType" -> when (c) {
                     1f -> {
-                        generateLinearLines(0f, a!! + b!!)
+                        generateLinearLines(0f, a + b)
                     }
                     0f -> {
                         generateLinearLines(0f, b)
@@ -399,7 +400,7 @@ class BoardView @JvmOverloads constructor(
         }
     }
 
-    private fun generateLinearLines(a: Float?, b: Float?) {
+    private fun generateLinearLines(a: Float, b: Float) {
         // raw
         val start = leftPoint
         val end = rightPoint
@@ -407,16 +408,19 @@ class BoardView @JvmOverloads constructor(
         val startLogic = convertRawPoint2Logical(start, unitLength)
         val endLogic = convertRawPoint2Logical(end, unitLength)
         // calculate
-        startLogic.y = FuncUtils.getLinearYValue(a!!, b!!, startLogic.x)
+        startLogic.y = FuncUtils.getLinearYValue(a, b, startLogic.x)
         endLogic.y = FuncUtils.getLinearYValue(a, b, endLogic.x)
         // convert logical to raw
         val startRaw = convertLogicalPoint2Raw(startLogic, unitLength)
         val endRaw = convertLogicalPoint2Raw(endLogic, unitLength)
         // draw lines
-        canvas.drawLine(startRaw.x, startRaw.y, endRaw.x, endRaw.y, functionLinePaint)
+        path.reset()
+        path.moveTo(startRaw.x, startRaw.y)
+        path.lineTo(endRaw.x, endRaw.y)
+        saveDrawPath(path, functionLinePaint, mPaintedList)
     }
 
-    private fun generatePowerLines(a: Float?, b: Float?, c: Float?) {
+    private fun generatePowerLines(a: Float, b: Float, c: Float) {
         // raw
         val start = leftPoint
         val end = rightPoint
@@ -427,15 +431,15 @@ class BoardView @JvmOverloads constructor(
             // logical
             val splitLogic = convertRawPoint2Logical(split, unitLength)
             // calculate
-            splitLogic.y = FuncUtils.getPowYValue(a!!, b!!, c!!, splitLogic.x)
+            splitLogic.y = FuncUtils.getPowYValue(a, b, c, splitLogic.x)
             // convert logical to raw
             val splitRaw = convertLogicalPoint2Raw(splitLogic, unitLength)
             xPointsValues[i] = splitRaw
         }
-        drawBezier(canvas, FuncType.POWER_TYPE)
+        drawBezier(FuncType.POWER_TYPE)
     }
 
-    private fun generateExpLines(a: Float?, b: Float?, c: Float?) {
+    private fun generateExpLines(a: Float, b: Float, c: Float) {
         // raw
         val start = leftPoint
         val end = rightPoint
@@ -446,16 +450,16 @@ class BoardView @JvmOverloads constructor(
             // logical
             val splitLogic = convertRawPoint2Logical(split, unitLength)
             // calculate
-            splitLogic.y = FuncUtils.getExpYValue(a!!, b!!, c!!, splitLogic.x)
+            splitLogic.y = FuncUtils.getExpYValue(a, b, c, splitLogic.x)
             // convert logical to raw
             val splitRaw = convertLogicalPoint2Raw(splitLogic, unitLength)
             xPointsValues[i] = splitRaw
         }
-        drawBezier(canvas, FuncType.EXP_TYPE)
+        drawBezier(FuncType.EXP_TYPE)
     }
 
 
-    private fun generateLogLines(a: Float?, b: Float?, c: Float?, d: Float?) {
+    private fun generateLogLines(a: Float, b: Float, c: Float, d: Float) {
         // raw
         val start = PointF()
         start.set(origin)
@@ -472,7 +476,7 @@ class BoardView @JvmOverloads constructor(
                 continue
             }
             try {
-                splitLogic.y = FuncUtils.getLogYValue(a!!, b!!, c!!, d!!, splitLogic.x)
+                splitLogic.y = FuncUtils.getLogYValue(a, b, c, d, splitLogic.x)
             } catch (e: FunctionNotValidException) {
                 continue
             }
@@ -480,14 +484,14 @@ class BoardView @JvmOverloads constructor(
             val splitRaw = convertLogicalPoint2Raw(splitLogic, unitLength)
             xPointsValues[i] = splitRaw
         }
-        drawBezier(canvas, FuncType.LOG_TYPE)
+        drawBezier(FuncType.LOG_TYPE)
     }
 
     private fun generateCircularLines(
-        a: Float?,
-        b: Float?,
-        c: Float?,
-        d: Float?,
+        a: Float,
+        b: Float,
+        c: Float,
+        d: Float,
         type: CircularType.Circular?
     ) {
         // raw
@@ -501,7 +505,7 @@ class BoardView @JvmOverloads constructor(
             val splitLogic = convertRawPoint2Logical(split, unitLength)
             // calculate
             val y: Float = try {
-                FuncUtils.getCircularYValue(a!!, b!!, c!!, d!!, splitLogic.x, type)
+                FuncUtils.getCircularYValue(a, b, c, d, splitLogic.x, type)
             } catch (e: FunctionTypeException) {
                 continue
             }
@@ -510,18 +514,17 @@ class BoardView @JvmOverloads constructor(
             val splitRaw = convertLogicalPoint2Raw(splitLogic, unitLength)
             xPointsValues[i] = splitRaw
         }
-        drawBezier(canvas, FuncType.CIRCULAR_TYPE)
+        drawBezier(FuncType.CIRCULAR_TYPE)
     }
 
-    private fun drawBezier(canvas: Canvas, type: FuncType) {
+    private fun drawBezier(type: FuncType) {
         if (xPointsValues.isNotEmpty()) {
             val path = Path()
             var k = -xMax
-            // if it is tangent function
+            // tan
             if (circular != null && circular == CircularType.Circular.TAN) {
                 k = -xMax / 2
                 while (k < 0) {
-                    // from left to right
                     val leftX = k * PI - PI / 2
                     val rightX = k * PI + PI / 2
                     if (-xMax / 2 >= leftX && -xMax / 2 <= rightX) {
@@ -530,11 +533,10 @@ class BoardView @JvmOverloads constructor(
                     k++
                 }
             }
-            // if it is cotangent function
+            // cot
             if (circular != null && circular == CircularType.Circular.COT) {
                 k = -xMax / 2
                 while (k < 0) {
-                    // from left to right
                     val leftX = k * PI - PI / 2
                     val rightX = k * PI + PI / 2
                     if (-xMax / 2 >= leftX && -xMax / 2 <= rightX) {
@@ -619,9 +621,9 @@ class BoardView @JvmOverloads constructor(
                         xPointsValues[i + 1]!!.x,
                         xPointsValues[i + 1]!!.y
                     )
-                    canvas.drawPath(path, functionLinePaint)
                 }
             }
+            saveDrawPath(path, functionLinePaint, mPaintedList)
         }
     }
 
@@ -632,7 +634,6 @@ class BoardView @JvmOverloads constructor(
                 "LinearType" -> {
                     a = type.a
                     b = type.b
-                    c = 0f
                     this.linearType = type
                 }
                 "PowerType" -> {
@@ -810,7 +811,6 @@ class BoardView @JvmOverloads constructor(
     }
 
     fun addFunctionLine(line: FunctionLine<*>) {
-        //lines.add(line)
         linearType = line.functionType
         if (line.lineColor != null) {
             functionLinePaint.color = line.lineColor!!
@@ -830,42 +830,6 @@ class BoardView @JvmOverloads constructor(
         } catch (e: FunctionTypeException) {
             e.printStackTrace()
         }
-    }
-
-    fun addPoint(point: SinglePoint) {
-        //points.add(point)
-        drawAxisPoint(point)
-        invalidate()
-    }
-
-    fun reset() {
-        lines.clear()
-        points.clear()
-        invalidate()
-    }
-
-    fun setAxisWidth(axisWidth: Int) {
-        this.axisWidth = axisWidth
-    }
-
-    fun setPrecision(precision: Int) {
-        this.dx = precision
-    }
-
-    fun setSegmentSize(segmentSize: Int) {
-        this.segmentSize = segmentSize
-    }
-
-    fun setAxisColor(axisColor: Int) {
-        this.axisColor = axisColor
-    }
-
-    fun setAxisPointRadius(axisPointRadius: Int) {
-        this.axisPointRadius = axisPointRadius
-    }
-
-    fun setMax(max: Int) {
-        this.max = max
     }
 
     fun setPaintMode(mode: Int) {
@@ -890,7 +854,6 @@ class BoardView @JvmOverloads constructor(
         canvas.drawColor(0, PorterDuff.Mode.CLEAR)
         clickTimes = 0
         pointCount = 0
-        clearAxis()
         invalidate()
     }
 
