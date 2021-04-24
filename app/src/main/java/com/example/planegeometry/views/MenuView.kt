@@ -29,6 +29,7 @@ class MenuView @JvmOverloads constructor(
             add(view.findViewById(R.id.item_revoke))
             add(view.findViewById(R.id.item_undo))
             add(view.findViewById(R.id.item_coordinate))
+            add(view.findViewById(R.id.item_function))
             add(view.findViewById(R.id.item_segment))
             add(view.findViewById(R.id.item_triangle))
             add(view.findViewById(R.id.item_rectangular))
@@ -74,7 +75,7 @@ class MenuView @JvmOverloads constructor(
 
     // 使用单独点击背景的item
     private fun useIndependentBackground(id: Int): Boolean {
-        return id == CLEAR || id == REVOKE || id == UNDO || id == SAVE || id == SHARE || id == COLOR || id == COORDINATE
+        return id == CLEAR || id == REVOKE || id == UNDO || id == SAVE || id == SHARE || id == COLOR || id == COORDINATE || id == FUNCTION
     }
 
     companion object {
@@ -87,12 +88,13 @@ class MenuView @JvmOverloads constructor(
         const val REVOKE = 4
         const val UNDO = 5
         const val COORDINATE = 6
-        const val SEGMENT = 7
-        const val TRIANGLE = 8
-        const val RECTANGULAR = 9
-        const val CIRCLE = 10
-        const val SAVE = 11
-        const val SHARE = 12
+        const val FUNCTION = 7
+        const val SEGMENT = 8
+        const val TRIANGLE = 9
+        const val RECTANGULAR = 10
+        const val CIRCLE = 11
+        const val SAVE = 12
+        const val SHARE = 13
     }
 
 }

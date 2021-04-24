@@ -44,6 +44,7 @@ class BoardView @JvmOverloads constructor(
     private var preY = 0f
     private var clickTimes: Int = 0
     private var pointCount: Int = 0
+    private var serialNumber: Int = 0 // 第n个几何图形的序列号，标记撤销用
 
     private var mPaintedList: MutableList<PaintData> = ArrayList()
     private var mRevokedList: MutableList<PaintData> = ArrayList()
@@ -170,7 +171,7 @@ class BoardView @JvmOverloads constructor(
                     }
                     MotionEvent.ACTION_UP -> {
                         mPaintedList.add(PaintData(Paint(paint), Path(path)))
-                        path.reset()
+                        onFinishedDrawing()
                     }
                 }
             }
@@ -185,8 +186,7 @@ class BoardView @JvmOverloads constructor(
                         } else {
                             path.lineTo(x, y)
                             saveDrawPath(path, paint, mPaintedList)
-                            path.reset()
-                            clickTimes = 0
+                            onFinishedDrawing()
                         }
                     }
                 }
@@ -213,8 +213,7 @@ class BoardView @JvmOverloads constructor(
                                 path.lineTo(preX, preY)
                                 path.close() // 使这些点构成封闭的多边形 
                                 saveDrawPath(path, paint, mPaintedList)
-                                clickTimes = 0
-                                path.reset()
+                                onFinishedDrawing()
                             }
                         }
                     }
@@ -235,8 +234,7 @@ class BoardView @JvmOverloads constructor(
                             val rectF = getRectF(preX, preY, x, y)
                             path.addRect(rectF, Path.Direction.CW)
                             saveDrawPath(path, paint, mPaintedList)
-                            path.reset()
-                            clickTimes = 0
+                            onFinishedDrawing()
                         }
                     }
                 }
@@ -255,8 +253,7 @@ class BoardView @JvmOverloads constructor(
                             val radius = sqrt((x - preX) * (x - preX) + (y - preY) * (y - preY))
                             path.addCircle(preX, preY, radius, Path.Direction.CW)
                             saveDrawPath(path, paint, mPaintedList)
-                            path.reset()
-                            clickTimes = 0
+                            onFinishedDrawing()
                         }
                     }
                 }
@@ -271,19 +268,26 @@ class BoardView @JvmOverloads constructor(
         canvas.drawBitmap(bitmap, 0f, 0f, null)
     }
 
+    private fun onFinishedDrawing() {
+        path.reset()
+        clickTimes = 0
+        serialNumber++
+    }
 
     private fun reDraw(paintList: MutableList<PaintData>) {
-        val lastPaint = paintList.removeLast()
         if (paintList === mPaintedList) {
-            mRevokedList.add(lastPaint)
-            // 将一系列关联的点一起带上 否则会显得不美观
-            while (paintList.isNotEmpty() && paintList.last().mType != DRAW_TYPE_LINE) {
-                mRevokedList.add(paintList.removeLast())
+            var seq = paintList.last().seq
+            while (paintList.isNotEmpty() && paintList.last().seq == seq) {
+                val lastPaint = paintList.removeLast()
+                seq = lastPaint.seq
+                mRevokedList.add(lastPaint)
             }
         } else {
-            mPaintedList.add(lastPaint)
-            while (paintList.isNotEmpty() && paintList.last().mType != DRAW_TYPE_LINE) {
-                mPaintedList.add(paintList.removeLast())
+            var seq = paintList.last().seq
+            while (paintList.isNotEmpty() && paintList.last().seq == seq) {
+                val lastPaint = paintList.removeLast()
+                seq = lastPaint.seq
+                mPaintedList.add(lastPaint)
             }
         }
         canvas.drawColor(0, PorterDuff.Mode.CLEAR)
@@ -302,7 +306,7 @@ class BoardView @JvmOverloads constructor(
     // 画出path并记录 path默认是线条
     private fun saveDrawPath(path: Path, paint: Paint, list: MutableList<PaintData>) {
         canvas.drawPath(path, paint)
-        list.add(PaintData(Paint(paint), Path(path), null, DRAW_TYPE_LINE))
+        list.add(PaintData(Paint(paint), Path(path), null, DRAW_TYPE_LINE, serialNumber))
     }
 
     // 写出点的文本形式并记录(P1 P2...)
@@ -318,7 +322,7 @@ class BoardView @JvmOverloads constructor(
     // 画出point并保存 (Point以Circle的path形式存在)
     private fun saveDrawPoint(path: Path, paint: Paint, list: MutableList<PaintData>) {
         canvas.drawPath(path, paint)
-        list.add(PaintData(Paint(paint), Path(path), null, DRAW_TYPE_POINT))
+        list.add(PaintData(Paint(paint), Path(path), null, DRAW_TYPE_POINT, serialNumber))
     }
 
     // 画出text并保存
@@ -330,7 +334,7 @@ class BoardView @JvmOverloads constructor(
         list: MutableList<PaintData>
     ) {
         canvas.drawText(text, x, y, paint)
-        list.add(PaintData(Paint(paint), null, TextData(x, y, text), DRAW_TYPE_TEXT))
+        list.add(PaintData(Paint(paint), null, TextData(x, y, text), DRAW_TYPE_TEXT, serialNumber))
     }
 
     // 矩形除了第一个点击的点剩余的三个点
@@ -361,17 +365,17 @@ class BoardView @JvmOverloads constructor(
     }
 
     // 坐标轴描点
-    private fun drawAxisPoint(point: SinglePoint) {
+    fun drawAxisPoint(point: SinglePoint) {
         val pointRaw = convertLogicalPoint2Raw(point.point, unitLength)
         if (point.pointColor != null) {
             pointPaint.color = point.pointColor!!
         }
         val radius =
             if (point.pointRadius == null) DEFAULT_SINGLE_POINT_RADIUS else point.pointRadius!!
-
         val path = Path()
         path.addCircle(pointRaw.x, pointRaw.y, radius.toFloat(), Path.Direction.CW)
         saveDrawPoint(path, pointPaint, mPaintedList)
+        invalidate()
     }
 
     private fun drawFuncLine() {
@@ -851,9 +855,11 @@ class BoardView @JvmOverloads constructor(
         path.reset()
         mPaintedList.clear()
         mRevokedList.clear()
+        axisPaintedList.clear()
         canvas.drawColor(0, PorterDuff.Mode.CLEAR)
         clickTimes = 0
         pointCount = 0
+        serialNumber = 0
         invalidate()
     }
 
@@ -881,6 +887,11 @@ class BoardView @JvmOverloads constructor(
         if (showAxis) drawAxis() else clearAxis()
     }
 
+    fun shouldShowAxis() {
+        if (showAxis) return
+        drawAxis()
+    }
+
     companion object {
         const val TAG = "BoardView"
         const val DRAW_TYPE_POINT = 1
@@ -906,7 +917,8 @@ data class PaintData(
     val mPaint: Paint,
     val mPath: Path? = null,
     val mText: TextData? = null,
-    val mType: Int = DRAW_TYPE_LINE
+    val mType: Int = DRAW_TYPE_LINE,
+    val seq: Int = 0
 ) {
 
     fun drawPath(canvas: Canvas) {
