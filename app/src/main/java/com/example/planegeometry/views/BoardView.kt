@@ -298,6 +298,7 @@ class BoardView @JvmOverloads constructor(
                 paintData.drawPath(canvas)
             }
         }
+        if (showAxis) drawAxis() // 因为没有记录坐标轴path,所以每次撤销操作后需要重新绘制
         invalidate()
     }
 

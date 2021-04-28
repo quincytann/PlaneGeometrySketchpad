@@ -128,7 +128,7 @@ class MainActivity : AppCompatActivity() {
             add {
                 board_view.drawOrHideAxis()
                 // test
-                Thread {
+//                Thread {
 //                    Thread.sleep(2000)
 //                    val line: FunctionLine<PowerType>
 //                    = FunctionLine(PowerType(1f,0f,2f), Color.parseColor("#e53935"))
@@ -143,11 +143,12 @@ class MainActivity : AppCompatActivity() {
 //                    val line3: FunctionLine<CircularType>
 //                            = FunctionLine(CircularType(1f, 0f, 1f, 0f, CircularType.Circular.SIN), Color.parseColor("#FFCA28"))
 //                    board_view.addFunctionLine(line3)
-                    Thread.sleep(2000)
-                    val point = SinglePoint(PointF(1f, 2f))
-                    point.pointColor = Color.RED
-                    board_view.drawAxisPoint(point)
-                }.start()
+
+//                    Thread.sleep(2000)
+//                    val point = SinglePoint(PointF(1f, 2f))
+//                    point.pointColor = Color.RED
+//                    board_view.drawAxisPoint(point)
+//                }.start()
             }
             add {
                 board_view.shouldShowAxis()
