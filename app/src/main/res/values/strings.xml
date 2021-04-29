@@ -23,9 +23,22 @@
     <string name="toast_save_success">保存成功</string>
     <string name="toast_save_fail">保存失败</string>
     <string name="toast_no_file_read_and_write_permission">无文件读写权限</string>
+    <string name="toast_parameter_is_not_complete">参数不全</string>
+
 
     <string name="dialog_title">请选择画笔颜色:)</string>
     <string name="dialog_positive">确认</string>
     <string name="dialog_negative">取消</string>
 
+    <string name="dialog_title_function_selector">请选择绘制函数类型:)</string>
+    <string-array name="planets_array">
+        <item>一次函数(y = a * x + b)</item>
+        <item>幂函数(y = a * x ^c + b)</item>
+        <item>指数函数(y = a * c^x + b)</item>
+        <item>对数函数(y = a * log(c * x + d) + b)</item>
+        <item>三角函数(y = a * sin(c * x + d) + b)</item>
+        <item>三角函数(y = a * cos(c * x + d) + b)</item>
+        <item>三角函数(y = a * tan(c * x + d) + b)</item>
+        <item>三角函数(y = a * cot(c * x + d) + b)</item>
+    </string-array>
 </resources>

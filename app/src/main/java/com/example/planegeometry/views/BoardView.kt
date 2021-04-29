@@ -81,8 +81,6 @@ class BoardView @JvmOverloads constructor(
     private var circular: CircularType.Circular? = null
     private var linearType: LinearType? = null
     private var xPointsValues: Array<PointF?>
-    private val lines: MutableList<FunctionLine<*>> = ArrayList()
-    private val points: MutableList<SinglePoint> = ArrayList()
 
     private var axisPaintedList: MutableList<PaintData> = ArrayList()
 
@@ -253,7 +251,6 @@ class BoardView @JvmOverloads constructor(
                             val radius = sqrt((x - preX) * (x - preX) + (y - preY) * (y - preY))
                             path.addCircle(preX, preY, radius, Path.Direction.CW)
                             saveDrawPath(path, paint, mPaintedList)
-                            onFinishedDrawing()
                         }
                     }
                 }
@@ -402,6 +399,7 @@ class BoardView @JvmOverloads constructor(
                 "LogType" -> generateLogLines(a, b, c, d)
                 "CircularType" -> generateCircularLines(a, b, c, d, circular)
             }
+            onFinishedDrawing()
         }
     }
 
@@ -857,6 +855,7 @@ class BoardView @JvmOverloads constructor(
         mPaintedList.clear()
         mRevokedList.clear()
         axisPaintedList.clear()
+        showAxis = false
         canvas.drawColor(0, PorterDuff.Mode.CLEAR)
         clickTimes = 0
         pointCount = 0

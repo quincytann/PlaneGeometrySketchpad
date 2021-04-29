@@ -1,10 +1,22 @@
 package com.example.planegeometry.coordinateaxischart
 
+import android.graphics.Color
 import android.graphics.PointF
 import com.example.planegeometry.coordinateaxischart.exception.FunctionNotValidException
 import com.example.planegeometry.coordinateaxischart.exception.FunctionTypeException
+import com.example.planegeometry.coordinateaxischart.type.*
 import com.example.planegeometry.coordinateaxischart.type.CircularType.Circular
-import com.example.planegeometry.coordinateaxischart.type.FuncType
+import com.example.planegeometry.funtionInput.FunctionInputData
+import com.example.planegeometry.funtionInput.FunctionInputDialog.Companion.COS
+import com.example.planegeometry.funtionInput.FunctionInputDialog.Companion.COT
+import com.example.planegeometry.funtionInput.FunctionInputDialog.Companion.EXP
+import com.example.planegeometry.funtionInput.FunctionInputDialog.Companion.LINEAR
+import com.example.planegeometry.funtionInput.FunctionInputDialog.Companion.LOG
+import com.example.planegeometry.funtionInput.FunctionInputDialog.Companion.POWER
+import com.example.planegeometry.funtionInput.FunctionInputDialog.Companion.SIN
+import com.example.planegeometry.funtionInput.FunctionInputDialog.Companion.TAN
+import java.util.*
+import kotlin.random.Random.Default.nextInt
 
 object FuncUtils {
     @JvmStatic
@@ -104,4 +116,55 @@ object FuncUtils {
         }
         return null
     }
+
+    @JvmStatic
+    fun getFunctionLineByInputData(data: FunctionInputData): FunctionLine<*> {
+        when (data.functionType) {
+            LINEAR -> {
+                return FunctionLine(LinearType(data.a, data.b), getRandomColor())
+            }
+            POWER -> {
+                return FunctionLine(PowerType(data.a, data.b, data.c), getRandomColor())
+            }
+            EXP -> {
+                return FunctionLine(ExpType(data.a, data.b, data.c), getRandomColor())
+            }
+            LOG -> {
+                return FunctionLine(LogType(data.a, data.b, data.c, data.d), getRandomColor())
+            }
+            SIN -> {
+                return FunctionLine(
+                    CircularType(data.a, data.b, data.c, data.d, Circular.SIN),
+                    getRandomColor()
+                )
+            }
+            COS -> {
+                return FunctionLine(
+                    CircularType(data.a, data.b, data.c, data.d, Circular.COS),
+                    getRandomColor()
+                )
+            }
+            TAN -> {
+                return FunctionLine(
+                    CircularType(data.a, data.b, data.c, data.d, Circular.TAN),
+                    getRandomColor()
+                )
+            }
+            COT -> {
+                return FunctionLine(
+                    CircularType(data.a, data.b, data.c, data.d, Circular.COT),
+                    getRandomColor()
+                )
+            }
+            else -> {
+                throw FunctionTypeException("Function Input data error.")
+            }
+        }
+    }
+
+    private fun getRandomColor(): Int {
+        val rnd = Random()
+        return Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256))
+    }
+
 }

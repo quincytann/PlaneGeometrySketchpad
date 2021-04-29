@@ -203,7 +203,8 @@ class ColorPickerDialog(
      */
     init {
         Color.colorToHSV(defaultColor, mCurrentHSV)
-        val view: View = LayoutInflater.from(context).inflate(R.layout.color_picker_dialog, null)
+        val view: View =
+            LayoutInflater.from(context).inflate(R.layout.color_picker_dialog_layout, null)
         mViewHue = view.findViewById(R.id.img_hue)
         mViewPlate = view.findViewById<View>(R.id.color_plate) as ColorPlateView
         mHueCursor = view.findViewById<View>(R.id.hue_cursor) as ImageView

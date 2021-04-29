@@ -3,8 +3,6 @@ package com.example.planegeometry
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.graphics.Point
-import android.graphics.PointF
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -14,11 +12,10 @@ import androidx.core.content.FileProvider
 import androidx.core.view.GravityCompat
 import com.example.planegeometry.colorpicker.ColorPickerDialog
 import com.example.planegeometry.colorpicker.OnColorPickerListener
-import com.example.planegeometry.coordinateaxischart.FunctionLine
-import com.example.planegeometry.coordinateaxischart.SinglePoint
-import com.example.planegeometry.coordinateaxischart.type.CircularType
-import com.example.planegeometry.coordinateaxischart.type.LinearType
-import com.example.planegeometry.coordinateaxischart.type.PowerType
+import com.example.planegeometry.coordinateaxischart.FuncUtils.getFunctionLineByInputData
+import com.example.planegeometry.funtionInput.FunctionInputData
+import com.example.planegeometry.funtionInput.FunctionInputDialog
+import com.example.planegeometry.funtionInput.OnFunctionInputListener
 import com.example.planegeometry.utils.FileUtil
 import com.example.planegeometry.utils.ProxyClickListener
 import com.example.planegeometry.views.MenuView.Companion.CIRCLE
@@ -127,32 +124,10 @@ class MainActivity : AppCompatActivity() {
             }
             add {
                 board_view.drawOrHideAxis()
-                // test
-//                Thread {
-//                    Thread.sleep(2000)
-//                    val line: FunctionLine<PowerType>
-//                    = FunctionLine(PowerType(1f,0f,2f), Color.parseColor("#e53935"))
-//                    board_view.addFunctionLine(line)
-//
-//                    Thread.sleep(2000)
-//                    val line2: FunctionLine<LinearType>
-//                            = FunctionLine(LinearType(2f, 1f), Color.parseColor("#43A047"))
-//                    board_view.addFunctionLine(line2)
-//
-//                    Thread.sleep(2000)
-//                    val line3: FunctionLine<CircularType>
-//                            = FunctionLine(CircularType(1f, 0f, 1f, 0f, CircularType.Circular.SIN), Color.parseColor("#FFCA28"))
-//                    board_view.addFunctionLine(line3)
-
-//                    Thread.sleep(2000)
-//                    val point = SinglePoint(PointF(1f, 2f))
-//                    point.pointColor = Color.RED
-//                    board_view.drawAxisPoint(point)
-//                }.start()
             }
             add {
                 board_view.shouldShowAxis()
-
+                showFunctionInput()
             }
             add {
                 board_view.setPaintMode(SEGMENT)
@@ -196,6 +171,22 @@ class MainActivity : AppCompatActivity() {
             }
         }
         menu_page.setClickItemCallBack(clickListener)
+    }
+
+    private fun showFunctionInput() {
+        FunctionInputDialog(this@MainActivity, object : OnFunctionInputListener{
+            override fun onFunctionParametersFixed(data: FunctionInputData?) {
+                data?.let {
+                    val line = getFunctionLineByInputData(it)
+                    board_view.addFunctionLine(line)
+                } ?: Toast.makeText(
+                    this@MainActivity,
+                    R.string.toast_parameter_is_not_complete,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+        }).show()
     }
 
     private fun showColorPicker() {
