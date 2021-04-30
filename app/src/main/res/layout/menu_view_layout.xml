@@ -193,10 +193,52 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/item_segment"
+            android:id="@+id/item_point"
             android:layout_width="60dp"
             android:layout_height="60dp"
             app:layout_constraintTop_toBottomOf="@id/item_coordinate"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/tracingpoint"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/black"
+                android:text="@string/menu_items_point"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/item_move"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            app:layout_constraintTop_toBottomOf="@id/item_coordinate"
+            app:layout_constraintLeft_toRightOf="@id/item_point"
+            android:orientation="vertical"
+            android:gravity="center">
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/move"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/black"
+                android:text="@string/menu_items_move"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/item_segment"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            app:layout_constraintTop_toBottomOf="@id/item_point"
             app:layout_constraintLeft_toLeftOf="parent"
             android:orientation="vertical"
             android:gravity="center">
@@ -217,7 +259,7 @@
             android:id="@+id/item_triangle"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            app:layout_constraintTop_toBottomOf="@id/item_coordinate"
+            app:layout_constraintTop_toBottomOf="@id/item_point"
             app:layout_constraintLeft_toRightOf="@id/item_segment"
             android:orientation="vertical"
             android:gravity="center">

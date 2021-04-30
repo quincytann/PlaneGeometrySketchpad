@@ -20,7 +20,9 @@ import com.example.planegeometry.utils.FileUtil
 import com.example.planegeometry.utils.ProxyClickListener
 import com.example.planegeometry.views.MenuView.Companion.CIRCLE
 import com.example.planegeometry.views.MenuView.Companion.ERASER
+import com.example.planegeometry.views.MenuView.Companion.MOVE
 import com.example.planegeometry.views.MenuView.Companion.PEN
+import com.example.planegeometry.views.MenuView.Companion.POINT
 import com.example.planegeometry.views.MenuView.Companion.RECTANGULAR
 import com.example.planegeometry.views.MenuView.Companion.SEGMENT
 import com.example.planegeometry.views.MenuView.Companion.TRIANGLE
@@ -128,6 +130,14 @@ class MainActivity : AppCompatActivity() {
             add {
                 board_view.shouldShowAxis()
                 showFunctionInput()
+            }
+            add {
+                board_view.setPaintMode(POINT)
+                startHideMenuBar()
+            }
+            add {
+                board_view.setPaintMode(MOVE)
+                startHideMenuBar()
             }
             add {
                 board_view.setPaintMode(SEGMENT)

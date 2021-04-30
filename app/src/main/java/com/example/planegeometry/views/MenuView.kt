@@ -30,6 +30,8 @@ class MenuView @JvmOverloads constructor(
             add(view.findViewById(R.id.item_undo))
             add(view.findViewById(R.id.item_coordinate))
             add(view.findViewById(R.id.item_function))
+            add(view.findViewById(R.id.item_point))
+            add(view.findViewById(R.id.item_move))
             add(view.findViewById(R.id.item_segment))
             add(view.findViewById(R.id.item_triangle))
             add(view.findViewById(R.id.item_rectangular))
@@ -89,12 +91,14 @@ class MenuView @JvmOverloads constructor(
         const val UNDO = 5
         const val COORDINATE = 6
         const val FUNCTION = 7
-        const val SEGMENT = 8
-        const val TRIANGLE = 9
-        const val RECTANGULAR = 10
-        const val CIRCLE = 11
-        const val SAVE = 12
-        const val SHARE = 13
+        const val POINT = 8
+        const val MOVE = 9
+        const val SEGMENT = 10
+        const val TRIANGLE = 11
+        const val RECTANGULAR = 12
+        const val CIRCLE = 13
+        const val SAVE = 14
+        const val SHARE = 15
     }
 
 }

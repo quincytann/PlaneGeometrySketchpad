@@ -8,6 +8,8 @@
     <string name="menu_items_clear">清屏</string>
     <string name="menu_items_eraser">橡皮擦</string>
     <string name="menu_items_coordinate">坐标轴</string>
+    <string name="menu_items_point">描点</string>
+    <string name="menu_items_move">移动</string>
     <string name="menu_items_function">函数</string>
     <string name="menu_items_segment">线段</string>
     <string name="menu_items_triangle">三角形</string>

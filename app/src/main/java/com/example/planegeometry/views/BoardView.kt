@@ -14,7 +14,9 @@ import com.example.planegeometry.utils.DimenUtil
 import com.example.planegeometry.views.BoardView.Companion.DRAW_TYPE_LINE
 import com.example.planegeometry.views.MenuView.Companion.CIRCLE
 import com.example.planegeometry.views.MenuView.Companion.ERASER
+import com.example.planegeometry.views.MenuView.Companion.MOVE
 import com.example.planegeometry.views.MenuView.Companion.PEN
+import com.example.planegeometry.views.MenuView.Companion.POINT
 import com.example.planegeometry.views.MenuView.Companion.RECTANGULAR
 import com.example.planegeometry.views.MenuView.Companion.SEGMENT
 import com.example.planegeometry.views.MenuView.Companion.TRIANGLE
@@ -168,10 +170,22 @@ class BoardView @JvmOverloads constructor(
                         canvas.drawPath(path, paint)
                     }
                     MotionEvent.ACTION_UP -> {
-                        mPaintedList.add(PaintData(Paint(paint), Path(path)))
+                        saveDrawPath(path, paint, mPaintedList)
                         onFinishedDrawing()
                     }
                 }
+            }
+
+            POINT -> {
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        saveDrawPointWithText(x, y)
+                    }
+                }
+            }
+
+            MOVE -> {
+                // todo
             }
 
             SEGMENT -> {
