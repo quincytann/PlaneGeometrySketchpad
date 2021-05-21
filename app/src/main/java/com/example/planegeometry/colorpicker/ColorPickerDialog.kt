@@ -194,13 +194,6 @@ class ColorPickerDialog(
         private val TAG = ColorPickerDialog::class.java.name
     }
 
-    /**
-     * 创建支持透明度的取色器
-     *
-     * @param context        宿主Activity
-     * @param defauleColor   默认的颜色
-     * @param listener       取色器的监听器
-     */
     init {
         Color.colorToHSV(defaultColor, mCurrentHSV)
         val view: View =

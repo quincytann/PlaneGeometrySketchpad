@@ -751,16 +751,11 @@ class BoardView @JvmOverloads constructor(
 
         // 坐标点单位长度
         unitLength = if (width > height) height / 2 / (max + 1) else width / 2 / (max + 1)
-        xMax = (if (width > height) width / unitLength else height / unitLength).toInt()
-        if (xMax >= max) {
-            yMax = max
-        } else {
-            yMax = xMax
-            xMax = max
-        }
+        xMax = (width / 2 / unitLength).toInt()
+        yMax = (height / 2 / unitLength).toInt()
 
         // x-
-        for (i in 0 until xMax) {
+        for (i in 0 until xMax-1) {
             val x = origin.x - unitLength * (i + 1)
             val y = origin.y
             if (x > leftPoint.x) {
@@ -772,7 +767,7 @@ class BoardView @JvmOverloads constructor(
             }
         }
         // x+
-        for (i in 0 until xMax) {
+        for (i in 0 until xMax-1) {
             val x = origin.x + unitLength * (i + 1)
             val y = origin.y
             if (x < rightPoint.x) {
@@ -784,7 +779,7 @@ class BoardView @JvmOverloads constructor(
             }
         }
         // y+
-        for (i in 0 until yMax) {
+        for (i in 0 until yMax-1) {
             val x = origin.x
             val y = origin.y - unitLength * (i + 1)
             if (y > topPoint.y) {
@@ -796,7 +791,7 @@ class BoardView @JvmOverloads constructor(
             }
         }
         // y-
-        for (i in 0 until yMax) {
+        for (i in 0 until yMax-1) {
             val x = origin.x
             val y = origin.y + unitLength * (i + 1)
             if (y < bottomPoint.y) {

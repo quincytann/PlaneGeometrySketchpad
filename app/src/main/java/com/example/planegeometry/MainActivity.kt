@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.example.planegeometry.colorpicker.ColorPickerDialog
 import com.example.planegeometry.colorpicker.OnColorPickerListener
 import com.example.planegeometry.coordinateaxischart.FuncUtils.getFunctionLineByInputData
@@ -26,14 +28,14 @@ import com.example.planegeometry.views.MenuView.Companion.POINT
 import com.example.planegeometry.views.MenuView.Companion.RECTANGULAR
 import com.example.planegeometry.views.MenuView.Companion.SEGMENT
 import com.example.planegeometry.views.MenuView.Companion.TRIANGLE
-import kotlinx.android.synthetic.main.draw_layout.*
+import kotlinx.android.synthetic.main.main_activity__layout.*
 
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.draw_layout)
+        setContentView(R.layout.main_activity__layout)
         setSupportActionBar(toolbar)
 
         initView()
@@ -65,18 +67,20 @@ class MainActivity : AppCompatActivity() {
 
         // 隐藏statusBar&&navigationBar得到全屏效果
         val decorView = window.decorView
-        val uiOptions = View.SYSTEM_UI_FLAG_LOW_PROFILE or
-                View.SYSTEM_UI_FLAG_FULLSCREEN or
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+        val uiOptions = (View.SYSTEM_UI_FLAG_IMMERSIVE
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
         decorView.systemUiVisibility = uiOptions
         decorView.setOnSystemUiVisibilityChangeListener { visibility ->
             if (visibility != uiOptions) {
                 decorView.systemUiVisibility = uiOptions
             }
         }
+//        val controller = ViewCompat.getWindowInsetsController(decorView)
+//        controller?.hide(WindowInsetsCompat.Type.systemBars())
     }
 
     private fun initAction() {
