@@ -2,9 +2,6 @@ package com.example.planegeometry.coordinateaxischart
 
 import com.example.planegeometry.coordinateaxischart.type.LinearType
 
-/**
- * Created by KiBa-PC on 2017/4/21.
- */
 class FunctionLine<T : LinearType?> {
     var functionType: T
     var lineColor: Int? = null
