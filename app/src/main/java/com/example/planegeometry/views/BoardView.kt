@@ -537,31 +537,6 @@ class BoardView @JvmOverloads constructor(
     private fun drawBezier(type: FuncType) {
         if (xPointsValues.isNotEmpty()) {
             val path = Path()
-            var k = -xMax
-            // tan
-            if (circular != null && circular == CircularType.Circular.TAN) {
-                k = -xMax / 2
-                while (k < 0) {
-                    val leftX = k * PI - PI / 2
-                    val rightX = k * PI + PI / 2
-                    if (-xMax / 2 >= leftX && -xMax / 2 <= rightX) {
-                        break
-                    }
-                    k++
-                }
-            }
-            // cot
-            if (circular != null && circular == CircularType.Circular.COT) {
-                k = -xMax / 2
-                while (k < 0) {
-                    val leftX = k * PI - PI / 2
-                    val rightX = k * PI + PI / 2
-                    if (-xMax / 2 >= leftX && -xMax / 2 <= rightX) {
-                        break
-                    }
-                    k++
-                }
-            }
             for (i in 0 until xPointsValues.size - 1) {
                 // 超出屏幕范围的点 不会绘制曲线
                 if (xPointsValues[i] != null && xPointsValues[i + 1] != null
@@ -596,33 +571,6 @@ class BoardView @JvmOverloads constructor(
                     val tangentLineFuncCoefficients2 = FuncUtils.computeLinearFuncsByPoints(
                         convertRawPoint2Logical(xPointsValues[i + 1]!!, unitLength), dp2!!
                     ) ?: return
-
-                    // if it is the tan func
-                    if (circular != null && circular == CircularType.Circular.TAN) {
-                        val domainLeft = k * PI - PI / 2
-                        val domainRight = k * PI + PI / 2
-                        if (dpLogic1.x > domainLeft && dpLogic1.x < domainRight) {
-                            if (dpLogic2.x > domainRight) {
-                                k++
-                                continue
-                            }
-                        }
-                    }
-
-                    // if it is the cot func
-                    if (circular != null && circular == CircularType.Circular.COT) {
-                        var domain = k * PI
-                        while (dpLogic1.x > domain) {
-                            k++
-                            domain = k * PI
-                        }
-                        if (dpLogic1.x < domain) {
-                            if (dpLogic2.x > domain) {
-                                k++
-                                continue
-                            }
-                        }
-                    }
 
                     // compute the intersection point as the control point of bezier curve
                     val controlPointLogic = FuncUtils.intersectionBetweenLinearFuncs(
